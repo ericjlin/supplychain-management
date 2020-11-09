@@ -1,5 +1,4 @@
 import React from 'react';
-import NavBar from './common/Navbar.jsx';
 import {
     Col, Form,
     FormGroup, Label, Input,
@@ -23,23 +22,35 @@ import {
       render() {
           return(
               <div>
-                <h3>List of Warehouses</h3>    
+                <h3>{this.props.title}</h3>    
                 <Table>
                     <thead>
                     <tr>
-                        <th>#</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Username</th>
+                        {
+                            this.props.header.map((hr) => {
+                                return(
+                                    <th>{hr}</th>
+                                );
+                            })
+                        }
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                    </tr>
+                        {
+                            this.props.trows.map((r) => {
+                                // const tmp = [];
+                                // r.forEach(i => {
+                                //     tmp.add(<t>)
+                                // });
+                                return(
+                                <tr>
+                                    <td>{r[0]}</td>
+                                    <td>{r[1]}</td>
+                                    <td>{r[2]}</td>
+                                    <td>{r[3]}</td>
+                                </tr>);
+                            })
+                        }
                     </tbody>
                 </Table>
             </div>

@@ -1,20 +1,30 @@
 import React from 'react';
-import NavBar from './common/Navbar.jsx';
 import {
     Col, Form,
-    FormGroup, Label, Input,
-    Button, Row, Table, Card, CardImg, CardText, CardBody,
+    FormGroup, Input,
+    Button, Row, Card, CardText, CardBody,
     CardTitle, CardSubtitle
   } from 'reactstrap';
-  import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+  import CustomTable from "./common/CustomTable.jsx";
+  import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react';
+  import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 
-export default class Dashboard extends React.Component {
 
+ class Dashboard extends React.Component {
+    // need list of longitude and latitude to define marker locations
     searchWarehouse = () => {
         // search warehouse
     }
     render () {
+        const test = [
+            [1, "eric", "eric", "eruc"],
+            [2, "elliot", "elliot", "elliot"],
+            [3, "hi", "there", "world"],
+            [4, "nice", "to", "meet you"]
+        ];
+        const header = ["#", "First Name", "Last Name", "Username"];
+        const data = [{name: 'Page A', uv: 400, pv: 2400, amt: 2400}, {name: 'Page B', uv: 300, pv: 2400, amt: 2400}, {name: 'Page C', uv: 350, pv: 2400, amt: 2400}];
         return(
                 // <div className="pl-3 pt-2">
                 <div className="pt-2 container-fluid">
@@ -32,44 +42,37 @@ export default class Dashboard extends React.Component {
                     </Form>
                     <Row>
                         <Col xs="7">
-                            <MapContainer center={[51.505, -0.09]} zoom={13} scrollWheelZoom={false}>
-                            <TileLayer
-                                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            />
-                            <Marker position={[51.505, -0.09]}>
-                                <Popup>
-                                A pretty CSS3 popup. <br /> Easily customizable.
-                                </Popup>
-                            </Marker>
-                            </MapContainer>
+                            <Map google={this.props.google} 
+                            style={{width: '100%', height: '100%', position: 'relative'}}
+                            initialCenter={{
+                                        lat: 40.854885,
+                                        lng: -88.081807
+                                    }} zoom={14}>
+
+                                <Marker
+                                        name={'Current location'}
+                                        />
+
+                                <InfoWindow>
+                                    <div>
+                                    <h1>1234</h1>
+                                    </div>
+                                </InfoWindow>
+                            </Map>
                         </Col>
                         <Col xs="5">
                         <Card>
-                            <CardImg top width="100%" src="/assets/318x180.svg" alt="Card image cap" />
+                            <LineChart width={600} height={300} data={data}>
+                                <Line type="monotone" dataKey="uv" stroke="#8884d8" />
+                                <CartesianGrid stroke="#ccc" />
+                                <XAxis dataKey="name" />
+                                <YAxis />
+                            </LineChart>
                             <CardBody>
                                 <CardTitle tag="h5">Card title</CardTitle>
                                 <CardSubtitle tag="h6" className="mb-2 text-muted">Card subtitle</CardSubtitle>
                                 <CardText>Some quick example text to build on the card title and make up the bulk of the card's content.</CardText>
-                                <h3>List of Orders</h3>
-                                <Table>
-                                <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Username</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
-                            </tr>
-                            </tbody>
-                                </Table>
+                                <CustomTable title="List of Orders" header={header} trows={test}/>
                                 <Button>Button</Button>
                             </CardBody>
                         </Card>
@@ -77,28 +80,14 @@ export default class Dashboard extends React.Component {
                     </Row>
                     <Row>
                         <Col xs="10">
-                        <h3>List of Warehouses</h3>    
-                        <Table>
-                            <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Username</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
-                            </tr>
-                            </tbody>
-                        </Table>
+                            <CustomTable title="List of Warehouses" header={header} trows={test}/>
                         </Col>
                     </Row>
                 </div>
         );
     }
 }
+
+export default GoogleApiWrapper({
+    apiKey: ("")
+  })(Dashboard)
