@@ -18,12 +18,11 @@ import {
           // loop through props and convert to rows
       }
 
-
       render() {
           return(
               <div>
                 <h3>{this.props.title}</h3>    
-                <Table>
+                <Table hover={true}>
                     <thead>
                     <tr>
                         {
@@ -43,7 +42,7 @@ import {
                                 //     tmp.add(<t>)
                                 // });
                                 return(
-                                <tr>
+                                <tr onClick={(e) => this.props.handleRowClick(e, r)}>
                                     <td>{r[0]}</td>
                                     <td>{r[1]}</td>
                                     <td>{r[2]}</td>

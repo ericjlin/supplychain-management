@@ -7,16 +7,31 @@ import {
     Nav,
     NavItem,
     NavLink,
-    Button
+    Dropdown, DropdownItem, DropdownToggle, DropdownMenu
   } from 'reactstrap';
-  import {withRouter} from 'react-router-dom'; 
+  import {withRouter, Link} from 'react-router-dom'; 
 
 class NavBar extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            profileToggle: false
+        }
+    }
+
+    profileToggle = () => {
+        this.setState({
+            profileToggle: !this.state.profileToggle
+        });
+    }
 
     handleLogout = (e) => {
         localStorage.clear();
         this.props.history.push('/login');
     }
+
+    //prop that checks role
 
     render() {
         return(
@@ -25,13 +40,30 @@ class NavBar extends React.Component {
                     <NavbarBrand href="/">Welcome!</NavbarBrand>
                     <Nav className="mr-auto" navbar>
                         <NavItem>
-                        <NavLink href="/components/">Components</NavLink>
+                            <NavLink href="/">Home</NavLink>
                         </NavItem>
                         <NavItem>
-                        <NavLink href="">GitHub</NavLink>
+                            <NavLink href="/sensors">Sensors</NavLink>
+                        </NavItem>
+                        <NavItem>
+                            <NavLink href="/warehouse">Warehouse(Test)</NavLink>
+                        </NavItem>
+                        <NavItem>
+                            <NavLink href="/diagnostic">Sensor Diagnostic(Test)</NavLink>
                         </NavItem>
                     </Nav>
-                    <Button onClick={this.handleLogout}>Logout</Button>
+                    <Dropdown className="pr-2" isOpen={this.state.profileToggle} toggle={this.profileToggle}>
+                        <DropdownToggle caret>
+                            Profile
+                            </DropdownToggle>
+                        <DropdownMenu>
+                            <DropdownItem header>Profile</DropdownItem>
+                            <DropdownItem href="/profile">Settings</DropdownItem>
+                            <DropdownItem href="">Support</DropdownItem>
+                            <DropdownItem divider />
+                            <DropdownItem onClick={this.handleLogout}>Logout</DropdownItem>
+                        </DropdownMenu>
+                        </Dropdown>
                 </Navbar>
             </div>
         );

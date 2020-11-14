@@ -1,5 +1,5 @@
 import React from 'react';
-import {withRouter} from 'react-router-dom'; 
+import {withRouter, Link} from 'react-router-dom'; 
 import {
     Container, Col, Form,
     FormGroup, Label, Input,
@@ -42,11 +42,11 @@ class Login extends React.Component {
         e.preventDefault();
         if (json[this.state.username] === this.state.pass) {
             if (this.state.username === 'support') {
-                localStorage.setItem('support', 'true');
+                localStorage.setItem('user', 'support');
             } else if (this.state.username === 'manager') {
-                localStorage.setItem('manager', 'true');
+                localStorage.setItem('user', 'manager');
             } else {
-                localStorage.setItem('user', 'true');
+                localStorage.setItem('user', 'supplier');
             }
             console.log("redirect...");
             this.props.history.push("/");
@@ -55,7 +55,7 @@ class Login extends React.Component {
 
     render () {
         return(
-            <div>
+            <div className="App">
                 <Container>
                     <h2>SupplyChain Login</h2>
                     <Form onSubmit={this.submitLogin}>
@@ -85,6 +85,7 @@ class Login extends React.Component {
                             </FormGroup>
                         </Col>
                         <Button type="submit">Submit</Button>
+                        <p>Don't have a account yet?<Link to="/register">Sign up!</Link></p>
                     </Form>
                 </Container>
             </div>
