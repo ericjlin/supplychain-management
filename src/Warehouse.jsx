@@ -1,29 +1,34 @@
 import React from 'react';
 import {
-    Collapse, Col, Form,
+    Collapse, Col, Form, Table,
     FormGroup, Input, Label, FormText,
     Button, Row, Card, CardText, CardBody,
     CardTitle, CardSubtitle,Modal, ModalHeader, ModalBody, ModalFooter, Container
   } from 'reactstrap';
 import CustomTable from "./common/CustomTable.jsx";
-import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react';
 import { ResponsiveContainer,LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
+import IndividualSensors from './IndividualSensor.jsx';
 
 class Warehouse extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            warehouseId: this.props.location.state ?
+            this.props.location.state.warehouseId : null,
             chart_data: [],
             addSensorModal: false,
             manageSensorModal: false,
             isOpen: false,
             addSensor : {
                 sensorType: "temperature"
-            }
+            },
+            individualSensorId: null
         }
     }
 
     componentDidMount() {
+        // console.log(this.props.location.state.warehouseId);
+        console.log(this.state.warehouseId);
         this.setState({
             chart_data : [
             {name: '15:05', temperature: 68, threshold: 80},
@@ -116,7 +121,7 @@ class Warehouse extends React.Component {
             <Container fluid="xl">
                 <Row className="justify-content-md-center pt-4 pb-4">
                     <Col md="4">
-                        <h2>Individual Warehouse</h2>
+                    <h2>Warehouse #{this.state.warehouseId}</h2>
                     </Col>
                     <Col md="3">
                         <Button onClick={this.addSensorToggle}>Add Sensor</Button>
@@ -141,7 +146,7 @@ class Warehouse extends React.Component {
                                     header={temperature_header} 
                                     trows={test} 
                                     handleRowClick={this.handleRowClick}/>
-                                <Button onClick={this.modalToggle}>Manage Sensor</Button>
+                                <Button onClick={this.manageSensorToggle}>Manage Sensor</Button>
                             </CardBody>
                         </Card>
                     </Col>
@@ -227,6 +232,17 @@ class Warehouse extends React.Component {
                             </ModalFooter>
                         </Form>
                     </ModalBody>        
+                </Modal>
+
+                <Modal isOpen={this.state.manageSensorModal} toggle={this.manageSensorToggle}>
+                    <ModalHeader toggle={this.manageSensorToggle}>Manage Sensor</ModalHeader>
+                    <ModalBody>
+                        <IndividualSensors/>
+                    </ModalBody> 
+                    <ModalFooter>
+                    <Button color="primary" type="submit">Update</Button>{' '}
+                        <Button color="secondary" onClick={this.manageSensorToggle}>Cancel</Button>
+                    </ModalFooter>       
                 </Modal>
             </Container>
         );

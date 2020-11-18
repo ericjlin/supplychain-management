@@ -1,14 +1,14 @@
 import React from 'react';
 import {
-    Collapse, Col, Form,
-    FormGroup, Input,
+    Collapse, Col, Table, Form, Label,
+    FormGroup, Input, Badge, Container,
     Button, Row, Card, CardText, CardBody,
     CardTitle, CardSubtitle,Modal, ModalHeader, ModalBody, ModalFooter
   } from 'reactstrap';
 import CustomTable from "./common/CustomTable.jsx";
 import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
-
+import { withRouter } from "react-router-dom";
 
 
  class Dashboard extends React.Component {
@@ -16,35 +16,110 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
     constructor(props) {
         super(props);
         this.state = {
-            chart_data: [],
             modal: false,
-            isOpen: false
+            isOpen: false,
+            table_header: [],
+            table_data: [],
+            showTooltip: {},
+            activeMarker: [],
+            markerData: [{
+                id : "1",
+                location: {
+                    lat: 40.854885,
+                    lng: -88.081807},
+                status : "operational",
+                orders: 20
+            },
+            {
+                id : "2",
+                location: {
+                    lat: 30.266666,
+                    lng: -97.733330},
+                status : "operational",
+                orders: 5
+            },
+            {
+                id : "3",
+                location: {
+                    lat: 38.854885,
+                    lng: -88.081807},
+                status : "operational",
+                orders: 100
+            },
+            {
+                id : "4",
+                location: {
+                    lat: 37.773972,
+                    lng: -122.431297},
+                status : "error",
+                orders: 0
+            },
+            {
+                id : "5",
+                location: {
+                    lat: 40.730610 ,
+                    lng: -73.935242},
+                status : "operational",
+                orders: 19
+            }]
         }
     }
 
     componentDidMount() {
+        const role = localStorage.getItem('user');
+        if (role === 'manager' || role === 'support') {
+            // show customers
+            console.log('manager or support!');
+            this.chart_data = [
+                ["Customer1", "Data", "Data"],
+                ["Customer1", "Data", "Data"],
+                ["Customer1", "Data", "Data"],
+                ["Customer1", "Data", "Data"],
+                ["Customer1", "Data", "Data"],
+            ];
+        } else if (role === 'supplier') {
+            // show current user warehouses
+            console.log('supplier!');
+        }
+
+        // let showTooltip = this.state.showTooltip;
+        // this.state.markerData.forEach((obj) => {
+        //     showTooltip[obj.id] = false;
+        // });
+        // this.setState({
+        //     showTooltip : showTooltip
+        // });
+
         this.setState({
-            chart_data : [{name: 'Page A', uv: 400, pv: 2400, amt: 2400}, 
-            {name: 'Page B', uv: 300, pv: 2400, amt: 2400}, 
-            {name: 'Page C', uv: 350, pv: 2400, amt: 2400}]
+            table_header : ["ID", "Name", "Orders", "Location", "Status"],
+            table_data : [
+                [1, "Alpha", "20", "Texas", "Operational"],
+                [2, "Bravo", "5", "Nevada", "Operational"],
+                [3, "Charlie", "100", "New York", "Sensor Issue"],
+                [4, "Delta", "0", "San Francisco", "Operational"],
+                [5, "Epsilon", "19", "Kansas", "Operational"]
+            ]
         });
         // grab all warehouse in user's home region and load on map
         // default detailed warehouse is first on the list 
         // run a condition check on role
         // Manager and IOT Support will get table of customer
     }
+
     // need list of longitude and latitude to define marker locations
-    searchWarehouse = () => {
+    searchWarehouse = (e) => {
         // search warehouse
     }
 
-    modalToggle = () => {
+    modalToggle = (e) => {
+        e.preventDefault();
         this.setState({
             modal: !this.state.modal
         });
     }
 
-    collapse = () => {
+    collapse = (e) => {
+        e.preventDefault();
         this.setState({
             isOpen: !this.state.isOpen
         });
@@ -55,23 +130,91 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
         console.log(e.target, r);
         // condition check to see if row is for individual warehouse or for everything
         // clicking orders won't do anything
-        // this.props.history.push('/warehouse');
+        this.props.history.push({
+            pathname: '/warehouse',
+            state: {
+                warehouseId: r[0]
+            }
+        });
+
     }
 
+    onMarkerClick = (props, marker) => {
+        let m = this.state.activeMarker;
+        m.push(marker);
+        console.log(props);
+        this.setState({
+            activeMarker: m,
+            showTooltip: true
+        });
+    }
+
+    onToolTipClose = (e) => {
+        console.log(e);
+        e.preventDefault();
+        this.setState({
+            activeMarker: null,
+            showTooltip: false
+        });
+    }
+
+    // close tooltip if user clicks off the tooltip
+    // onMapClick = (e) => {
+    //     console.log(e);
+    //     if (this.state.showTooltip) {
+    //         this.setState({
+    //             activeMarker: null,
+    //             showTooltip: false
+    //         });
+    //     }
+    // }
+
     render () {
-        const test = [
-            [1, "eric", "eric", "eruc"],
-            [2, "elliot", "elliot", "elliot"],
-            [3, "hi", "there", "world"],
-            [4, "nice", "to", "meet you"]
+        const map_data = [
+            {
+                id : "1",
+                location: {
+                    lat: 40.854885,
+                    lng: -88.081807},
+                status : "operational",
+                orders: 20
+            },
+            {
+                id : "2",
+                location: {
+                    lat: 30.266666,
+                    lng: -97.733330},
+                status : "operational",
+                orders: 5
+            },
+            {
+                id : "3",
+                location: {
+                    lat: 38.854885,
+                    lng: -88.081807},
+                status : "operational",
+                orders: 100
+            },
+            {
+                id : "4",
+                location: {
+                    lat: 37.773972,
+                    lng: -122.431297},
+                status : "error",
+                orders: 0
+            },
+            {
+                id : "5",
+                location: {
+                    lat: 40.730610 ,
+                    lng: -73.935242},
+                status : "operational",
+                orders: 19
+            }
         ];
-        const ware_header = ["Warehouse#", "First Name", "Last Name", "Username"];
-        const order_header = ["Order#", "First Name", "Last Name", "Username"];
-        const data = [{name: 'Page A', uv: 400, pv: 2400, amt: 2400}, {name: 'Page B', uv: 300, pv: 2400, amt: 2400}, {name: 'Page C', uv: 350, pv: 2400, amt: 2400}];
         return(
                 // <div className="pl-3 pt-2">
                 <div className="pt-2 container-fluid">
-
                     <Form>
                         <Row>
                             <Col>
@@ -92,43 +235,87 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
                                 initialCenter={{
                                     lat: 40.854885,
                                     lng: -88.081807
-                                }} 
+                                }}
                                 zoom={14}>
-                                <Marker
-                                        name={'Current location'}
-                                        />
+                                {
+                                    map_data.map(
+                                        (obj, index) => {
+                                            let lat = parseFloat(obj.location.lat, 10);
+                                            let lng = parseFloat(obj.location.lng, 10);
+                                            let wareid = obj.id
+                                            console.log("test", lat, lng);
+                                            return(
+                                                <Marker
+                                                    key={index}
+                                                    name={obj.id}
+                                                    onClick={this.onMarkerClick}
+                                                    position={{
+                                                        lat: lat,
+                                                        lng: lng
+                                                    }}
+                                                    >
 
-                                <InfoWindow>
-                                    <div>
-                                    <h1>1234</h1>
-                                    </div>
-                                </InfoWindow>
+                                                <InfoWindow 
+                                                key={index + "_info"}
+                                                name={wareid}
+                                                visible={this.state.showTooltip}
+                                                marker={this.state.activeMarker}
+                                                onClose={this.onToolTipClose}
+                                                >
+                                                    <div key={index}>
+                                                        <Row>
+                                                            <Col>
+                                                                <h6>Warehouse {obj.id}</h6>
+                                                            </Col>
+                                                        </Row>
+                                                        <Row className="justify-content-center">
+                                                            <Col>
+                                                                <Badge color="success">{obj.status}</Badge>
+                                                            </Col>
+                                                        </Row>
+                                                    </div>
+                                                </InfoWindow>
+                                                </Marker>
+                                    );})
+                                }
                             </Map>
                         </Col>
                         <Col md="5">
                         <Card height='100%' width="100%">
                             <CardBody>
-                        <CustomTable 
-                                title="List of Warehouses"
-                                header={ware_header}
-                                trows={test}
+                            <Row>
+                                <Col md="10">
+                                    <h2>List of Warehouses</h2>
+                                </Col>
+                                <Col md="1">
+                                    <Button onClick={this.modalToggle}>Add</Button>
+                                </Col>
+                            </Row>
+                            <CustomTable 
+                                title=""
+                                header={this.state.table_header}
+                                trows={this.state.table_data}
                                 handleRowClick={this.handleRowClick}
                                 />
                                 </CardBody>
                                 </Card>
                         </Col>
                     </Row>
+
+
                     <Modal isOpen={this.state.modal} toggle={this.modalToggle}>
                             <ModalHeader toggle={this.modalToggle}>Add Warehouse</ModalHeader>
                         <ModalBody>
-                        <LineChart width={600} height={300} data={this.state.chart_data}>
-                                <Line type="monotone" dataKey="uv" stroke="#8884d8" />
-                                <CartesianGrid stroke="#ccc" />
-                                <XAxis dataKey="name" />
-                                <YAxis />
-                            </LineChart>
-                            <CustomTable title="List of Orders" header={order_header} trows={test} handleRowClick={this.handleRowClick}/>
-                                <Button onClick={this.modalToggle}>Add Sensor</Button>
+                            <Form>
+                            <FormGroup>
+                                <Label for="exampleEmail">Warehouse Name</Label>
+                                <Input type="email" name="email" id="exampleEmail" placeholder="Name here..." />
+                            </FormGroup>
+                            <FormGroup>
+                                <Label for="examplePassword">Location</Label>
+                                <Input type="password" name="password" id="examplePassword" placeholder="" />
+                            </FormGroup>
+                            </Form>
                         </ModalBody>
                         <ModalFooter>
                         <Button color="primary" onClick={this.modalToggle}>Do Something</Button>{' '}
@@ -142,4 +329,4 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 export default GoogleApiWrapper({
     apiKey: ("")
-  })(Dashboard)
+  })(withRouter(Dashboard));

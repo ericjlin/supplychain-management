@@ -3,7 +3,7 @@ import {withRouter, Link} from 'react-router-dom';
 import {
     Container, Col, Form,
     FormGroup, Label, Input,
-    Button,
+    Button, Row, 
   } from 'reactstrap';
 
 class Register extends React.Component {
@@ -40,10 +40,14 @@ class Register extends React.Component {
     render() {
         return(
             <div className="App">
+              <Container>
+
+            <Row className="pt-5 justify-content-center">
             <h2>SupplyChain Register</h2>
-            <Form className="login-form" onSubmit={this.registerSubmit}>
-              <Container className="login-border">
-                <Col className="font-weight-bold">
+            </Row>
+            <Form className="pl-5 pr-5 border login-form" onSubmit={this.registerSubmit}>
+              {/* <Container className="login-border"> */}
+                <Col className="pb-4 font-weight-bold">
                   <FormGroup>
                     <Label for="name">Name</Label>
                     <Input
@@ -97,10 +101,12 @@ class Register extends React.Component {
                         <option>IOT Support</option>
                     </Input>
                   </FormGroup>
-                  <Button type="submit">Register</Button>
+                  <Button color="primary" type="submit">Register</Button>{' '}
+                  <Link className="btn btn-danger" to="/">Cancel</Link>
                 </Col>
-              </Container>
+              {/* </Container> */}
             </Form>
+</Container>
           </div>
         )
     }

@@ -3,7 +3,7 @@ import {withRouter, Link} from 'react-router-dom';
 import {
     Container, Col, Form,
     FormGroup, Label, Input,
-    Button,
+    Button, Row
   } from 'reactstrap';
   
 
@@ -57,8 +57,11 @@ class Login extends React.Component {
         return(
             <div className="App">
                 <Container>
+                    <Row className="pt-5 justify-content-center">
                     <h2>SupplyChain Login</h2>
-                    <Form onSubmit={this.submitLogin}>
+                    </Row>
+                    <Row className="justify-content-center">
+                    <Form className="pt-4 pb-4 pr-5 pl-5 border" onSubmit={this.submitLogin}>
                         <Col>
                             <FormGroup>
                                 <Label>Username/Email</Label>
@@ -85,8 +88,9 @@ class Login extends React.Component {
                             </FormGroup>
                         </Col>
                         <Button type="submit">Submit</Button>
-                        <p>Don't have a account yet?<Link to="/register">Sign up!</Link></p>
+                        <p className="pt-2">Don't have a account yet?<Link to="/register">Sign up!</Link></p>
                     </Form>
+                    </Row>
                 </Container>
             </div>
         );

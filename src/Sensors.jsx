@@ -38,7 +38,8 @@ import {
                 [1, "eric", "eric", "eruc"],
                 [2, "elliot", "elliot", "elliot"],
                 [3, "hi", "there", "world"],
-                [4, "nice", "to", "meet you"]
+                [4, "nice", "to", "meet you"],
+                [5, "data", "data", "data"]
             ];
           return(
             <div>
