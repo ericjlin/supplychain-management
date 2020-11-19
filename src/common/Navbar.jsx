@@ -42,7 +42,7 @@ class NavBar extends React.Component {
                         <NavItem>
                             <NavLink href="/">Home</NavLink>
                         </NavItem>
-                        <NavItem>
+                        {/* <NavItem>
                             <NavLink href="/sensors">Sensors</NavLink>
                         </NavItem>
                         <NavItem>
@@ -50,7 +50,7 @@ class NavBar extends React.Component {
                         </NavItem>
                         <NavItem>
                             <NavLink href="/diagnostic">Sensor Diagnostic(Test)</NavLink>
-                        </NavItem>
+                        </NavItem> */}
                     </Nav>
                     <Dropdown className="pr-2" isOpen={this.state.profileToggle} toggle={this.profileToggle}>
                         <DropdownToggle caret>

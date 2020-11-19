@@ -6,6 +6,7 @@ import Register from './Register.jsx';
 import { createBrowserHistory } from 'history';
 import {
   BrowserRouter as Router,
+  HashRouter,
   Route,
   Switch,
   Redirect,
@@ -31,7 +32,7 @@ class App extends React.Component {
   render() {
     let history = createBrowserHistory();
     return (
-      <Router forceRefresh={true} history={history}>
+      <HashRouter forceRefresh={true} history={history}>
         <Switch>
             <Route path="/login" component={Login} />
             <Route path="/register" component={Register} />
@@ -44,7 +45,7 @@ class App extends React.Component {
                         }
                     }} />
         </Switch>
-      </Router>
+      </HashRouter>
     );
   }
 }

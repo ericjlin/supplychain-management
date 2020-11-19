@@ -7,8 +7,8 @@ import {
   } from 'reactstrap';
 import CustomTable from "./common/CustomTable.jsx";
 import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { withRouter } from "react-router-dom";
+import Geocode from "react-geocode";
 
 
  class Dashboard extends React.Component {
@@ -21,7 +21,11 @@ import { withRouter } from "react-router-dom";
             table_header: [],
             table_data: [],
             showTooltip: {},
-            activeMarker: [],
+            activeMarker: null,
+            selectedMarkerInfo: {
+                name: "",
+                status: "Unknown"
+            },
             markerData: [{
                 id : "1",
                 location: {
@@ -61,7 +65,8 @@ import { withRouter } from "react-router-dom";
                     lng: -73.935242},
                 status : "operational",
                 orders: 19
-            }]
+            }],
+            deleteModal: false
         }
     }
 
@@ -82,14 +87,6 @@ import { withRouter } from "react-router-dom";
             console.log('supplier!');
         }
 
-        // let showTooltip = this.state.showTooltip;
-        // this.state.markerData.forEach((obj) => {
-        //     showTooltip[obj.id] = false;
-        // });
-        // this.setState({
-        //     showTooltip : showTooltip
-        // });
-
         this.setState({
             table_header : ["ID", "Name", "Orders", "Location", "Status"],
             table_data : [
@@ -97,7 +94,8 @@ import { withRouter } from "react-router-dom";
                 [2, "Bravo", "5", "Nevada", "Operational"],
                 [3, "Charlie", "100", "New York", "Sensor Issue"],
                 [4, "Delta", "0", "San Francisco", "Operational"],
-                [5, "Epsilon", "19", "Kansas", "Operational"]
+                [5, "Epsilon", "19", "Kansas", "Operational"],
+                [6, "Foxtrot", "4", "Kansas", "No Sensors Detected"]
             ]
         });
         // grab all warehouse in user's home region and load on map
@@ -118,6 +116,13 @@ import { withRouter } from "react-router-dom";
         });
     }
 
+    deleteToggle = (e) => {
+        e.preventDefault();
+        this.setState({
+            deleteModal: !this.state.deleteModal
+        });
+    }
+
     collapse = (e) => {
         e.preventDefault();
         this.setState({
@@ -128,93 +133,73 @@ import { withRouter } from "react-router-dom";
     handleRowClick = (e, r) => {
         // handle clicking a row
         console.log(e.target, r);
+
         // condition check to see if row is for individual warehouse or for everything
         // clicking orders won't do anything
         this.props.history.push({
             pathname: '/warehouse',
             state: {
-                warehouseId: r[0]
+                warehouseId: r[0],
+                name: r[1]
             }
         });
 
     }
 
     onMarkerClick = (props, marker) => {
-        let m = this.state.activeMarker;
-        m.push(marker);
         console.log(props);
+        let h = props.name.split(" ");
+        console.log(h);
         this.setState({
-            activeMarker: m,
-            showTooltip: true
+            activeMarker: marker,
+            showTooltip: true,
+            selectedMarkerInfo: {
+                name: h[0],
+                status: h[1]
+            }
         });
     }
 
     onToolTipClose = (e) => {
         console.log(e);
-        e.preventDefault();
+        // e.preventDefault();
         this.setState({
             activeMarker: null,
             showTooltip: false
         });
     }
 
+    addWarehouseSubmit = () => {
+        // use react geocode to convert address to lat/lng
+        // Geocode.fromAddress("address").then(
+        //     (response) => {
+        //         const { lat, lng } = response.results[0].geometry.location;
+        //         console.log(lat, lng);
+        //     },
+        //     (error) => {
+        //         console.log(error);
+        //     }
+        // );
+    }
+
+    deleteWarehouseSubmit = () => {
+        // delete warehouse from the network for the specific customer
+    }
+
     // close tooltip if user clicks off the tooltip
-    // onMapClick = (e) => {
-    //     console.log(e);
-    //     if (this.state.showTooltip) {
-    //         this.setState({
-    //             activeMarker: null,
-    //             showTooltip: false
-    //         });
-    //     }
-    // }
+    onMapClick = (e) => {
+        console.log(e);
+        if (this.state.showTooltip) {
+            this.setState({
+                activeMarker: null,
+                showTooltip: false
+            });
+        }
+    }
 
     render () {
-        const map_data = [
-            {
-                id : "1",
-                location: {
-                    lat: 40.854885,
-                    lng: -88.081807},
-                status : "operational",
-                orders: 20
-            },
-            {
-                id : "2",
-                location: {
-                    lat: 30.266666,
-                    lng: -97.733330},
-                status : "operational",
-                orders: 5
-            },
-            {
-                id : "3",
-                location: {
-                    lat: 38.854885,
-                    lng: -88.081807},
-                status : "operational",
-                orders: 100
-            },
-            {
-                id : "4",
-                location: {
-                    lat: 37.773972,
-                    lng: -122.431297},
-                status : "error",
-                orders: 0
-            },
-            {
-                id : "5",
-                location: {
-                    lat: 40.730610 ,
-                    lng: -73.935242},
-                status : "operational",
-                orders: 19
-            }
-        ];
         return(
-                // <div className="pl-3 pt-2">
-                <div className="pt-2 container-fluid">
+                <Container className="pt-2" fluid={true}>
                     <Form>
                         <Row>
                             <Col>
@@ -228,101 +213,160 @@ import { withRouter } from "react-router-dom";
                         </Row>
                     </Form>
                     <Row>
-                        <Col md="7">
+                        <Col xs= "12" md="7">
                             <Map 
                                 google={this.props.google} 
-                                style={{width: '90%', height: '800px', position: 'relative'}}
+                                style={{width: '90%', height: '750px', position: 'relative'}}
                                 initialCenter={{
                                     lat: 40.854885,
                                     lng: -88.081807
                                 }}
+                                onClick={this.onMapClick}
                                 zoom={14}>
                                 {
-                                    map_data.map(
+                                    this.state.markerData.map(
                                         (obj, index) => {
                                             let lat = parseFloat(obj.location.lat, 10);
                                             let lng = parseFloat(obj.location.lng, 10);
-                                            let wareid = obj.id
-                                            console.log("test", lat, lng);
                                             return(
                                                 <Marker
                                                     key={index}
-                                                    name={obj.id}
+                                                    name={`${obj.id} ${obj.status}`}
                                                     onClick={this.onMarkerClick}
                                                     position={{
                                                         lat: lat,
                                                         lng: lng
                                                     }}
-                                                    >
-
-                                                <InfoWindow 
-                                                key={index + "_info"}
-                                                name={wareid}
+                                                    />
+                                    );})
+                                }
+                                    <InfoWindow
                                                 visible={this.state.showTooltip}
                                                 marker={this.state.activeMarker}
                                                 onClose={this.onToolTipClose}
                                                 >
-                                                    <div key={index}>
+                                                    <div>
                                                         <Row>
                                                             <Col>
-                                                                <h6>Warehouse {obj.id}</h6>
+                                                                <h6>Warehouse {this.state.selectedMarkerInfo.name}</h6>
                                                             </Col>
                                                         </Row>
                                                         <Row className="justify-content-center">
                                                             <Col>
-                                                                <Badge color="success">{obj.status}</Badge>
+                                                                <Badge 
+                                                                    color={this.state.selectedMarkerInfo.status === "error" ? 
+                                                                    "danger" : "success"}>
+                                                                    {this.state.selectedMarkerInfo.status}
+                                                                </Badge>
                                                             </Col>
                                                         </Row>
                                                     </div>
-                                                </InfoWindow>
-                                                </Marker>
-                                    );})
-                                }
+                                        </InfoWindow>
                             </Map>
                         </Col>
-                        <Col md="5">
-                        <Card height='100%' width="100%">
-                            <CardBody>
-                            <Row>
-                                <Col md="10">
-                                    <h2>List of Warehouses</h2>
-                                </Col>
-                                <Col md="1">
-                                    <Button onClick={this.modalToggle}>Add</Button>
-                                </Col>
-                            </Row>
-                            <CustomTable 
-                                title=""
-                                header={this.state.table_header}
-                                trows={this.state.table_data}
-                                handleRowClick={this.handleRowClick}
-                                />
+                        <Col xs="12" md="5">
+                            <Card height='100%' width="100%">
+                                <CardBody>
+                                    <Row>
+                                        <Col md="9">
+                                            <h2>List of Warehouses</h2>
+                                        </Col>
+                                        <Col md="1">
+                                            <Button onClick={this.modalToggle}>Add</Button>
+                                        </Col>
+                                        <Col md="1">
+                                            <Button onClick={this.deleteToggle}>Delete</Button>
+                                        </Col>
+                                    </Row>
+                                    <Table xs="10" hover={true}>
+                                        <thead>
+                                        <tr>
+                                            {
+                                                this.state.table_header.map((hr) => {
+                                                    return(
+                                                        <th>{hr}</th>
+                                                    );
+                                                })
+                                            }
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                            {
+                                                this.state.table_data.map((r) => {
+                                                    return(
+                                                    <tr onClick={(e) => this.handleRowClick(e, r)}>
+                                                        <td>{r[0]}</td>
+                                                        <td>{r[1]}</td>
+                                                        <td>{r[2]}</td>
+                                                        <td>{r[3]}</td>
+                                                        <td>{r[4]}</td>
+                                                    </tr>);
+                                                })
+                                            }
+                                        </tbody>
+                                    </Table>
                                 </CardBody>
-                                </Card>
+                            </Card>
                         </Col>
                     </Row>
 
-
-                    <Modal isOpen={this.state.modal} toggle={this.modalToggle}>
-                            <ModalHeader toggle={this.modalToggle}>Add Warehouse</ModalHeader>
+                    <Modal isOpen={this.state.deleteModal} toggle={this.deleteToggle}>
+                        <ModalHeader toggle={this.deleteToggle}>Delete Warehouse</ModalHeader>
                         <ModalBody>
-                            <Form>
-                            <FormGroup>
-                                <Label for="exampleEmail">Warehouse Name</Label>
-                                <Input type="email" name="email" id="exampleEmail" placeholder="Name here..." />
-                            </FormGroup>
-                            <FormGroup>
-                                <Label for="examplePassword">Location</Label>
-                                <Input type="password" name="password" id="examplePassword" placeholder="" />
-                            </FormGroup>
+                            <Form onSubmit={this.deleteWarehouseSubmit}>
+                                <FormGroup>
+                                    <Label for="exampleEmail">Warehouse Name</Label>
+                                    <Input type="select" name="warehouse_delete">
+                                        <option value="alpha">Alpha</option>
+                                        <option value="bravo">Bravo</option>
+                                        <option value="charlie">Charlie</option>
+                                        <option value="delta">Delta</option>
+                                        <option value="epsilon">Epsilon</option>
+                                        <option value="foxtrot">Foxtrot</option>
+                                    </Input>
+                                </FormGroup>
                             </Form>
                         </ModalBody>
                         <ModalFooter>
-                        <Button color="primary" onClick={this.modalToggle}>Do Something</Button>{' '}
-                        <Button color="secondary" onClick={this.modalToggle}>Cancel</Button>
+                            <Button color="danger" onClick={this.deleteToggle}>Delete</Button>{' '}
+                            <Button color="primary" onClick={this.deleteToggle}>Cancel</Button>
                         </ModalFooter>
                     </Modal>
-                </div>
+
+                    <Modal isOpen={this.state.modal} toggle={this.modalToggle}>
+                        <ModalHeader toggle={this.modalToggle}>Add Warehouse</ModalHeader>
+                        <ModalBody>
+                            <Form onSubmit={this.addWarehouseSubmit}>
+                                <FormGroup>
+                                    <Label for="exampleEmail">Warehouse Name</Label>
+                                    <Input type="email" name="email" id="exampleEmail" placeholder="Name here..." />
+                                </FormGroup>
+                                <FormGroup>
+                                    <Label>Address</Label>
+                                    <Input name="address"/>
+                                    <Row>
+                                        <Col>
+                                            <Label>City</Label>
+                                            <Input name="city"/>
+                                        </Col>
+                                        <Col>
+                                            <Label>State</Label>
+                                            <Input name="address"/>
+                                        </Col>
+                                        <Col>
+                                            <Label>Zipcode</Label>
+                                            <Input name="address"/>
+                                        </Col>
+                                    </Row>
+                                </FormGroup>
+                            </Form>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="primary" onClick={this.modalToggle}>Add</Button>{' '}
+                            <Button color="danger" onClick={this.modalToggle}>Cancel</Button>
+                        </ModalFooter>
+                    </Modal>
+                </Container>
         );
     }
 }

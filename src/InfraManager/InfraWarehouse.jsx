@@ -4,22 +4,18 @@ import {
     FormGroup, Input, Label, FormText,
     Button, Row, Card, CardText, CardBody,
     CardTitle, CardSubtitle,Modal, ModalHeader, ModalBody, ModalFooter,
-    Container, Pagination, PaginationItem, PaginationLink
+    Container
   } from 'reactstrap';
-import CustomTable from "./common/CustomTable.jsx";
+import CustomTable from "../common/CustomTable.jsx";
 import { ResponsiveContainer,LineChart, Line, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
-import IndividualSensors from './IndividualSensor.jsx';
-import { Link } from "react-router-dom";
-import warehouseJSON from './mock_data/warehouse';
+import IndividualSensors from '../IndividualSensor.jsx';
 
-class Warehouse extends React.Component {
+class SupportWarehouse extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             warehouseId: this.props.location.state ?
             this.props.location.state.warehouseId : null,
-            warehouseName: this.props.location.state ?
-            this.props.location.state.name : "",
             chart_data: [],
             addSensorModal: false,
             manageSensorModal: false,
@@ -28,32 +24,27 @@ class Warehouse extends React.Component {
             addSensor : {
                 sensorType: "temperature"
             },
-            individualSensorId: null,
-            selectedSensor: false,
-            orderPages: 1,
-            orderHistory: warehouseJSON[0].history
+            individualSensorId: null
         }
     }
 
     componentDidMount() {
         // console.log(this.props.location.state.warehouseId);
         console.log(this.state.warehouseId);
-
-
         this.setState({
             chart_data : [
-            {name: '15:05', temperature: 68},
-            {name: '15:10', temperature: 69}, 
-            {name: '15:15', temperature: 66}, 
-            {name: '15:20', temperature: 66},
-            {name: '15:25', temperature: 68},
-            {name: '15:30', temperature: 70},
-            {name: '15:35', temperature: 71},
-            {name: '15:40', temperature: 71},
-            {name: '15:45', temperature: 71},
-            {name: '15:50', temperature: 75},
-            {name: '15:55', temperature: 75},
-            {name: '16:00', temperature: 76}
+            {name: '15:05', temperature: 68, threshold: 80},
+            {name: '15:10', temperature: 69, threshold: 80}, 
+            {name: '15:15', temperature: 66, threshold: 80}, 
+            {name: '15:20', temperature: 66, threshold: 80},
+            {name: '15:25', temperature: 68, threshold: 80},
+            {name: '15:30', temperature: 70, threshold: 80},
+            {name: '15:35', temperature: 71, threshold: 80},
+            {name: '15:40', temperature: 71, threshold: 80},
+            {name: '15:45', temperature: 71, threshold: 80},
+            {name: '15:50', temperature: 75, threshold: 80},
+            {name: '15:55', temperature: 75, threshold: 80},
+            {name: '16:00', temperature: 76, threshold: 80}
         ]
         });
 
@@ -61,29 +52,24 @@ class Warehouse extends React.Component {
             {sensorId: "1",
             sensorName: "Sensor #1",
             data: [
-                    {name: '15:05', temperature: 68},
-                    {name: '15:10', temperature: 69}, 
-                    {name: '15:15', temperature: 66}, 
-                    {name: '15:20', temperature: 66},
-                    {name: '15:25', temperature: 68},
-                    {name: '15:30', temperature: 70},
-                    {name: '15:35', temperature: 71},
-                    {name: '15:40', temperature: 71},
-                    {name: '15:45', temperature: 71},
-                    {name: '15:50', temperature: 75},
-                    {name: '15:55', temperature: 75},
-                    {name: '16:00', temperature: 76}
+                    {name: '15:05', temperature: 68, threshold: 80},
+                    {name: '15:10', temperature: 69, threshold: 80}, 
+                    {name: '15:15', temperature: 66, threshold: 80}, 
+                    {name: '15:20', temperature: 66, threshold: 80},
+                    {name: '15:25', temperature: 68, threshold: 80},
+                    {name: '15:30', temperature: 70, threshold: 80},
+                    {name: '15:35', temperature: 71, threshold: 80},
+                    {name: '15:40', temperature: 71, threshold: 80},
+                    {name: '15:45', temperature: 71, threshold: 80},
+                    {name: '15:50', temperature: 75, threshold: 80},
+                    {name: '15:55', temperature: 75, threshold: 80},
+                    {name: '16:00', temperature: 76, threshold: 80}
                 ]
             },
             {sensorId: "2"}
         ];
         // make call to grab all sensor data from the selected warehouse
         // default detailed warehouse is first on the list 
-    }
-
-    orderTablePagination() {
-        // organize order table pagination
-        const table_size = 5;
     }
 
     addSensorToggle = () => {
@@ -129,12 +115,6 @@ class Warehouse extends React.Component {
         });
     }
 
-    manageIndividualSensor = () => {
-        this.setState({
-            selectedSensor: !this.state.selectedSensor
-        });
-    }
-
     renderCustomizedLabel = ({
         cx, cy, midAngle, innerRadius, outerRadius, percent, index,
       }) => {
@@ -169,12 +149,11 @@ class Warehouse extends React.Component {
         return(
             <Container className="pb-5" fluid="xl">
                 <Row className="justify-content-md-center pt-4 pb-4">
-                    <Col md="6">
-                    <h2>Warehouse {this.state.warehouseName}</h2>
-                    </Col>
                     <Col md="4">
-                        <Button color="primary" onClick={this.addSensorToggle}>Add Sensor</Button>{' '}
-                        <Link className="btn btn-primary" to="/">Go Back</Link>
+                    <h2>Warehouse #{this.state.warehouseId}</h2>
+                    </Col>
+                    <Col md="3">
+                        <Button onClick={this.addSensorToggle}>Add Sensor</Button>
                     </Col>
                 </Row>
                 <Row>
@@ -185,6 +164,7 @@ class Warehouse extends React.Component {
                                 <ResponsiveContainer width='100%' height={300}>
                                     <LineChart  data={this.state.chart_data}>
                                         <Line type="monotone" dataKey="temperature" stroke="#8884d8" />
+                                        <Line type="monotone" dataKey="threshold" stroke="#DC143C" />
                                         <CartesianGrid stroke="#ccc" />
                                         <XAxis dataKey="name" />
                                         <YAxis domain={[0, 100]}/>
@@ -200,7 +180,7 @@ class Warehouse extends React.Component {
                         </Card>
                     </Col>
 
-                    <Col className="pb-4" md="auto">
+                    <Col md="auto">
                         <Card style={{width:"500px"}}>
                             <CardBody >
                                 <CardTitle tag="h5">Card2 title</CardTitle>
@@ -208,6 +188,7 @@ class Warehouse extends React.Component {
                                 <ResponsiveContainer width={400} height={300}>
                                     <LineChart width={400} height={300} data={this.state.chart_data}>
                                         <Line type="monotone" dataKey="temperature" stroke="#8884d8" />
+                                        <Line type="monotone" dataKey="threshold" stroke="#8884d8" />
                                         <CartesianGrid stroke="#ccc" />
                                         <XAxis dataKey="name" />
                                         <YAxis domain={[0, 100]}/>
@@ -223,7 +204,7 @@ class Warehouse extends React.Component {
                         </Card>
                         
                     </Col>
-                    <Col className="pb-4" md="auto">
+                    <Col md="auto">
                         <Card style={{width:"500px"}}>
                             <CardBody >
                                 <CardTitle tag="h5">Card2 title</CardTitle>
@@ -245,7 +226,7 @@ class Warehouse extends React.Component {
                             </CardBody>
                         </Card>
                     </Col>
-                    <Col className="pb-4" md="auto">
+                    <Col md="auto">
                         <Card style={{width:"500px"}}>
                             <CardBody >
                                 <CardTitle tag="h5">Orders Summary</CardTitle>
@@ -305,36 +286,7 @@ class Warehouse extends React.Component {
                                         </tr>
                                     </tbody>
                                 </Table>
-                                <Pagination aria-label="Page navigation example">
-                                    <PaginationItem>
-                                        <PaginationLink first onClick={()=> {console.log("load first")}}/>
-                                    </PaginationItem>
-                                    <PaginationItem>
-                                        <PaginationLink previous />
-                                    </PaginationItem>
-                                    <PaginationItem>
-                                        <PaginationLink >
-                                        1
-                                        </PaginationLink>
-                                    </PaginationItem>
-                                    <PaginationItem>
-                                        <PaginationLink >
-                                        2
-                                        </PaginationLink>
-                                    </PaginationItem>
-                                    <PaginationItem>
-                                        <PaginationLink >
-                                        3
-                                        </PaginationLink>
-                                    </PaginationItem>
-                                    <PaginationItem>
-                                        <PaginationLink next />
-                                    </PaginationItem>
-                                    <PaginationItem>
-                                        <PaginationLink last />
-                                    </PaginationItem>
-                                </Pagination>
-                                {/* <Button onClick={this.manageOrderToggle}>Manage Orders</Button> */}
+                                <Button onClick={this.manageOrderToggle}>Manage Orders</Button>
                             </CardBody>
                         </Card>
                     </Col>
@@ -360,7 +312,20 @@ class Warehouse extends React.Component {
                                     <option value="temperature">Temperature</option>
                                     <option value="humidity">Humidity</option>
                                     <option value="uv">UV</option>
+                                    <option value="wind">Wind</option>
                                 </Input>
+                            </FormGroup>
+                            { this.state.addSensor.sensorType === "temperature" ? 
+                            <FormGroup>
+                                <Label for="exampleSelectMulti">Unit Type</Label>
+                                <Input type="select" name="selectMulti" id="exampleSelectMulti">
+                                <option>Fahrenheit</option>
+                                <option>Celsius</option>
+                                </Input>
+                            </FormGroup> : null}
+                            <FormGroup>
+                                <Label for="examplePassword">Threshold</Label>
+                                <Input type="password" name="password" id="examplePassword" placeholder="" />
                             </FormGroup>
                             <ModalFooter>
                                 <Button color="primary" type="submit" onClick={this.addSensorToggle}>Submit</Button>{' '}
@@ -376,7 +341,7 @@ class Warehouse extends React.Component {
                         <IndividualSensors/>
                     </ModalBody> 
                     <ModalFooter>
-                    <Button color="primary" onClick={this.manageIndividualSensor} >Update</Button>{' '}
+                    <Button color="primary" type="submit">Update</Button>{' '}
                         <Button color="secondary" onClick={this.manageSensorToggle}>Cancel</Button>
                     </ModalFooter>       
                 </Modal>
@@ -396,4 +361,4 @@ class Warehouse extends React.Component {
     }
 }
 
-export default Warehouse;
+export default SupportWarehouse;
