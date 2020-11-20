@@ -8,6 +8,7 @@ import {
   } from 'reactstrap';
 import CustomTable from "../common/CustomTable.jsx";
 import { ResponsiveContainer,LineChart, Line, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
+import { Link } from "react-router-dom";
 
 class SupportWarehouse extends React.Component {
     constructor(props) {
@@ -15,6 +16,8 @@ class SupportWarehouse extends React.Component {
         this.state = {
             warehouseId: this.props.location.state ?
             this.props.location.state.warehouseId : null,
+            warehouseName: this.props.location.state ?
+            this.props.location.state.name : null,
             chart_data: [],
             addSensorModal: false,
             manageSensorModal: false,
@@ -149,10 +152,10 @@ class SupportWarehouse extends React.Component {
             <Container className="pb-5" fluid="xl">
                 <Row className="justify-content-md-center pt-4 pb-4">
                     <Col md="4">
-                    <h2>Warehouse #{this.state.warehouseId}</h2>
+                    <h2>Warehouse {this.state.warehouseName}</h2>
                     </Col>
-                    <Col md="3">
-                        <Button onClick={this.addSensorToggle}>Add Sensor</Button>
+                    <Col md="4">
+                        <Link className="btn btn-primary" to="/">Go Back</Link>
                     </Col>
                 </Row>
                 <Row>

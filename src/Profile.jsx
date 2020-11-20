@@ -15,12 +15,15 @@ TODO: Work on modal forms for edit profile, edit billing and view charts
       constructor(props) {
           super(props);
           this.state = {
-            chart_data: []
+            chart_data: [],
+            role: localStorage.getItem("user") ? 
+            localStorage.getItem("user") : ""
           }
       }
 
       componentDidMount() {
-          // test data
+
+        // test data
         this.setState({
             chart_data : [
             {name: '15:05', temperature: 68},
@@ -44,12 +47,10 @@ TODO: Work on modal forms for edit profile, edit billing and view charts
                     
                     <Row className="justify-content-md-center">
                         
-                        <Col xs={6} md={5}>
+                        <Col xs={12} md={5}>
+                            <h2>Profile</h2>
                             <Row>
-                                <h2>Profile</h2>
-                            </Row>
-                            <Row>
-                                <img src="./logo512.png" style={{height: '200px', width:'200px'}}class="rounded float-left" />
+                                <img src="./logo512.png" style={{height: '200px', width:'200px'}} class="rounded float-left" />
                             </Row>
                             <Row>
                                 <Table borderless={true}>
@@ -61,7 +62,7 @@ TODO: Work on modal forms for edit profile, edit billing and view charts
                                     <tbody>
                                         <tr>
                                             <th scope="row">Role:</th>
-                                            <th scope="row">Supplier</th>
+                                            <th scope="row">{this.state.role}</th>
                                         </tr>
                                         <tr>
                                             <th scope="row">Address</th>
@@ -85,10 +86,8 @@ TODO: Work on modal forms for edit profile, edit billing and view charts
                             </Row>
                             
                         </Col>
-                        <Col md={7}>
-                            <Row className="pt-4">
+                        <Col className="pt-2" md={7}>
                                 <h2>Billing Information</h2>
-                            </Row>
                             <Row>
                                 <Table borderless={true}>
                                     <tbody>
@@ -109,10 +108,7 @@ TODO: Work on modal forms for edit profile, edit billing and view charts
                                 <Button>Edit Billing</Button>
                             </Row>
                             <Row className="pl-2 pt-4">
-                                <Row>
-                                    <h2>Track Expenses</h2>
-                                </Row>
-                                
+                                <h2>Track Expenses</h2>
                             </Row>
                             <Row>
                                 <ResponsiveContainer className="pt-2" width="100%" height={500}>

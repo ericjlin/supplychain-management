@@ -3,8 +3,10 @@ import {
     Collapse, Col, Table, Form, Label,
     FormGroup, Input, Badge, Container,
     Button, Row, Card, CardText, CardBody,
-    CardTitle, CardSubtitle,Modal, ModalHeader, ModalBody, ModalFooter
+    CardTitle, CardSubtitle,Modal, ModalHeader, ModalBody, ModalFooter,
+    ButtonGroup, 
   } from 'reactstrap';
+import { useMediaQuery, MediaQuery } from 'react-responsive';
 import CustomTable from "./common/CustomTable.jsx";
 import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react';
 import { withRouter } from "react-router-dom";
@@ -66,7 +68,11 @@ import Geocode from "react-geocode";
                 status : "operational",
                 orders: 19
             }],
-            deleteModal: false
+            deleteModal: false,
+            selectedLocation: {
+                lat: "",
+                lng: ""
+            }
         }
     }
 
@@ -88,14 +94,14 @@ import Geocode from "react-geocode";
         }
 
         this.setState({
-            table_header : ["ID", "Name", "Orders", "Location", "Status"],
+            table_header : ["Name", "Orders", "Location", "Status"],
             table_data : [
-                [1, "Alpha", "20", "Texas", "Operational"],
-                [2, "Bravo", "5", "Nevada", "Operational"],
-                [3, "Charlie", "100", "New York", "Sensor Issue"],
-                [4, "Delta", "0", "San Francisco", "Operational"],
-                [5, "Epsilon", "19", "Kansas", "Operational"],
-                [6, "Foxtrot", "4", "Kansas", "No Sensors Detected"]
+                ["Alpha", "20", "Texas", "Operational"],
+                ["Bravo", "5", "Nevada", "Operational"],
+                ["Charlie", "100", "New York", "Sensor Issue"],
+                ["Delta", "0", "San Francisco", "Operational"],
+                ["Epsilon", "19", "Kansas", "Operational"],
+                ["Foxtrot", "4", "Kansas", "No Sensors Detected"]
             ]
         });
         // grab all warehouse in user's home region and load on map
@@ -139,8 +145,7 @@ import Geocode from "react-geocode";
         this.props.history.push({
             pathname: '/warehouse',
             state: {
-                warehouseId: r[0],
-                name: r[1]
+                name: r[0]
             }
         });
 
@@ -197,26 +202,28 @@ import Geocode from "react-geocode";
         }
     }
 
+
+
     render () {
         return(
                 <Container className="pt-2" fluid={true}>
                     <Form>
                         <Row>
-                            <Col>
+                            <Col md="7" xs="9">
                             <FormGroup>
                                 <Input name="search" id="search" placeholder="Enter a address, zip code or city...." />
                             </FormGroup>
                             </Col>
-                            <Col>
+                            <Col md="1" xs="1">
                             <Button onClick={this.collapse}>Submit</Button>
                             </Col>
                         </Row>
                     </Form>
                     <Row>
                         <Col xs= "12" md="7">
+                        <div style={{ position: 'relative', width: '100%', height: '80vh' }}>
                             <Map 
                                 google={this.props.google} 
-                                style={{width: '90%', height: '750px', position: 'relative'}}
                                 initialCenter={{
                                     lat: 40.854885,
                                     lng: -88.081807
@@ -263,6 +270,7 @@ import Geocode from "react-geocode";
                                                     </div>
                                         </InfoWindow>
                             </Map>
+                            </div>
                         </Col>
                         <Col xs="12" md="5">
                             <Card height='100%' width="100%">
@@ -272,10 +280,10 @@ import Geocode from "react-geocode";
                                             <h2>List of Warehouses</h2>
                                         </Col>
                                         <Col md="1">
-                                            <Button onClick={this.modalToggle}>Add</Button>
-                                        </Col>
-                                        <Col md="1">
-                                            <Button onClick={this.deleteToggle}>Delete</Button>
+                                            <ButtonGroup>
+                                                <Button onClick={this.modalToggle}>Add</Button>
+                                                <Button onClick={this.deleteToggle}>Delete</Button>
+                                            </ButtonGroup>
                                         </Col>
                                     </Row>
                                     <Table xs="10" hover={true}>

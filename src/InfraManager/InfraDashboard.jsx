@@ -1,37 +1,57 @@
 import React from 'react';
 import {
-    Collapse, Col, Form,
-    FormGroup, Input,
-    Button, Row, Card, CardText, CardBody,
-    CardTitle, CardSubtitle,Modal, ModalHeader, ModalBody, ModalFooter
+    Collapse, Col, Table, Form, Label,
+    FormGroup, Input, Badge, Container,
+    Button, ButtonGroup, Row,
+    Card, CardText, CardBody, CardTitle, CardSubtitle,
+    Modal, ModalHeader, ModalBody, ModalFooter
   } from 'reactstrap';
 import CustomTable from "../common/CustomTable.jsx";
 import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { withRouter } from "react-router-dom";
+import customerJson from '../mock_data/customer';
 
-
-
- class InfraDashboard extends React.Component {
-
+class InfraDashboard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            table_header: [], 
-            table_data: [],
-            chart_data: [],
-            searchValue: "",
             modal: false,
-            isOpen: false
+            isOpen: false,
+            table_header: [],
+            table_data: [],
+            showTooltip: {},
+            activeMarker: null,
+            selectedMarkerInfo: {
+                name: "",
+                status: "Unknown"
+            },
+            markerData: [],
+            customerTable: [],
+            customerHeader: ["Name", "# of Warehouses"],
+            isCustomerView: true,
+            selectedCustomer: "",
+            deleteModal: false,
+            searchBarValue: "",
+            zoom: 14,
+            centerLocation: {}
         }
     }
 
     componentDidMount() {
         const role = localStorage.getItem('user');
 
+        this.grabCustomer();
+        this.grabAllWarehouse();
         this.setState({
-            chart_data : [{name: 'Page A', uv: 400, pv: 2400, amt: 2400}, 
-            {name: 'Page B', uv: 300, pv: 2400, amt: 2400}, 
-            {name: 'Page C', uv: 350, pv: 2400, amt: 2400}]
+            table_header : ["Name", "Orders", "Location", "Status"],
+            table_data : [
+                ["Alpha", "20", "Texas", "Operational"],
+                ["Bravo", "5", "Nevada", "Operational"],
+                ["Charlie", "100", "New York", "Sensor Issue"],
+                ["Delta", "0", "San Francisco", "Operational"],
+                ["Epsilon", "19", "Kansas", "Operational"],
+                ["Foxtrot", "4", "Kansas", "No Sensors Detected"]
+            ]
         });
         // grab all warehouse in user's home region and load on map
         // default detailed warehouse is first on the list 
@@ -39,120 +59,336 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
         // Manager and IOT Support will get table of customer
     }
 
-    // need list of longitude and latitude to define marker locations
-    searchWarehouse = () => {
-        // search warehouse
+    grabAllWarehouse = () => {
+
+        let warehouses = []
+        customerJson.forEach((customer) => {
+            let tmp = customer.warehouses.map((ware) => {
+                ware.customer = customer.name;
+                return ware;
+            });
+            console.log(tmp);
+            warehouses = warehouses.concat(tmp);
+        });
+        this.setState({
+            markerData: warehouses
+        });
     }
 
-    modalToggle = () => {
+
+    // need list of longitude and latitude to define marker locations
+    searchWarehouse = (e) => {
+        // search warehouse
+        e.preventDefault();
+        let loc = {
+            lat: -1, 
+            lng: -1
+        };
+        this.state.markerData.forEach((ware) => {
+            if (this.state.searchBarValue === ware.state ) {
+                // zoom in
+                loc = ware.location;
+            }
+        });
+        if (loc.lat < 0) {
+             console.log("NOt found");
+        } else {
+            this.setState({
+                zoom: 14,
+                centerLocation: loc
+            });
+        }
+    }
+
+    grabCustomer = () =>  {
+        let cust = []
+        customerJson.forEach((customer) => {
+            let tmp = [customer.name, customer.warehouses.length];
+            cust.push(tmp);
+        });
+        this.setState({
+            customerTable: cust
+        });
+    }
+
+    modalToggle = (e) => {
+        e.preventDefault();
         this.setState({
             modal: !this.state.modal
         });
     }
 
-    collapse = () => {
+    deleteToggle = (e) => {
+        e.preventDefault();
         this.setState({
-            isOpen: !this.state.isOpen
+            deleteModal: !this.state.deleteModal
         });
     }
 
-    handleRowClick = (e, r) => {
+    handleCustomerRowClick = (e, r) => {
         // handle clicking a row
         console.log(e.target, r);
         // condition check to see if row is for individual warehouse or for everything
         // clicking orders won't do anything
-        // this.props.history.push('/warehouse');
-        let customer = this.state.customers[r[0]];
-        if (customer) {
-            // load data onto map and table
+        this.setState({
+            isCustomerView: !this.state.isCustomerView,
+            selectedCustomer: r[0]
+        });
+    }
+
+    handleWarehouseRowClick = (e, r) =>{
+        // handle the warehouse row click
+        this.props.history.push({
+            pathname: '/manager_warehouse',
+            state: {
+                name: r[0]
+            }
+        });
+    }
+
+    backToCustomer = () => {
+        this.setState({
+            isCustomerView: !this.state.isCustomerView
+        });
+    }
+
+    onMarkerClick = (props, marker) => {
+        console.log(props);
+        let h = props.name.split("-");
+        console.log(h);
+        this.setState({
+            activeMarker: marker,
+            showTooltip: true,
+            selectedMarkerInfo: {
+                name: h[0],
+                status: h[1],
+                customer: h[2] ? h[2] : null
+            }
+        });
+    }
+
+    onToolTipClose = (e) => {
+        console.log(e);
+        // e.preventDefault();
+        this.setState({
+            activeMarker: null,
+            showTooltip: false
+        });
+    }
+
+    // close tooltip if user clicks off the tooltip
+    onMapClick = (e) => {
+        console.log(e);
+        if (this.state.showTooltip) {
+            this.setState({
+                activeMarker: null,
+                showTooltip: false
+            });
         }
     }
 
-    searchChange = (e) => {
+    handleSearchChange = (e) => {
+        e.preventDefault();
+        console.log(e.target.value);
         this.setState({
-            searchValue: e.target.value
+            searchBarValue: e.target.value
         });
     }
 
     render () {
-        const test = [
-            [1, "eric", "eric", "eruc"],
-            [2, "elliot", "elliot", "elliot"],
-            [3, "hi", "there", "world"],
-            [4, "nice", "to", "meet you"]
-        ];
-        const ware_header = ["Warehouse#", "First Name", "Last Name", "Username"];
-        const order_header = ["Order#", "First Name", "Last Name", "Username"];
-        const data = [{name: 'Page A', uv: 400, pv: 2400, amt: 2400}, {name: 'Page B', uv: 300, pv: 2400, amt: 2400}, {name: 'Page C', uv: 350, pv: 2400, amt: 2400}];
         return(
-                // <div className="pl-3 pt-2">
                 <div className="pt-2 container-fluid">
-
                     <Form>
-                        <Row className="justify-content-center">
-                            <Col>
-                            <FormGroup>
-                                <Input name="search" id="search"
-                                placeholder="Enter a address, zip code or city...."
-                                onChange={this.searchChange}
-                                value={this.state.searchValue}
-                                />
-                            </FormGroup>
+                        <Row>
+                            <Col xs="9" md="7">
+                                <FormGroup>
+                                    <Input name="search" 
+                                    id="search"
+                                    onChange={this.handleSearchChange}
+                                    value={this.state.searchBarValue}
+                                    placeholder="Enter a address, zip code or city...." />
+                                </FormGroup>
                             </Col>
-                            <Col>
-                            <Button onClick={this.collapse}>Submit</Button>
+                            <Col xs="1" md="1">
+                                <Button onClick={this.searchWarehouse}>Submit</Button>
                             </Col>
+                            { !this.state.isCustomerView ?
+                            <Col xs="12" md="5">
+                                <h2 >Currently Viewing: {this.state.selectedCustomer}</h2>
+                            </Col>
+                            : null}
                         </Row>
                     </Form>
                     <Row>
-                        <Col md="7">
+                        <Col xs="12" md="7">
+                        <div style={{ position: 'relative', width: '100%', height: '80vh' }}>
                             <Map 
                                 google={this.props.google} 
-                                style={{width: '90%', height: '800px', position: 'relative'}}
-                                initialCenter={{
-                                    lat: 40.854885,
-                                    lng: -88.081807
-                                }} 
+                                center={this.state.centerLocation}
+                                onClick={this.onMapClick}
                                 zoom={14}>
-                                <Marker
-                                        name={'Current location'}
-                                        />
-
-                                <InfoWindow>
-                                    <div>
-                                    <h1>1234</h1>
-                                    </div>
-                                </InfoWindow>
+                                {
+                                    this.state.markerData.map(
+                                        (obj, index) => {
+                                            let lat = parseFloat(obj.location.lat, 10);
+                                            let lng = parseFloat(obj.location.lng, 10);
+                                            return(
+                                                <Marker
+                                                    key={index}
+                                                    name={`${obj.name}-${obj.status}-${obj.customer}`}
+                                                    onClick={this.onMarkerClick}
+                                                    position={{
+                                                        lat: lat,
+                                                        lng: lng
+                                                    }}
+                                                    />
+                                    );})
+                                }
+                                    <InfoWindow
+                                                visible={this.state.showTooltip}
+                                                marker={this.state.activeMarker}
+                                                onClose={this.onToolTipClose}
+                                                >
+                                                    <div>
+                                                        <Row>
+                                                            <Col>
+                                                                <h6>Warehouse {this.state.selectedMarkerInfo.name}</h6>
+                                                            </Col>
+                                                        </Row>
+                                                        <Row className="justify-content-center">
+                                                            <Col>
+                                                                <Badge 
+                                                                    color={this.state.selectedMarkerInfo.status === "error" ? 
+                                                                    "danger" : "success"}>
+                                                                    {this.state.selectedMarkerInfo.status}
+                                                                </Badge>
+                                                            </Col>
+                                                        </Row>
+                                                    </div>
+                                        </InfoWindow>
                             </Map>
+                            </div>
                         </Col>
-                        <Col md="5">
-                        <Card height='100%' width="100%">
-                            <CardBody>
-                        <CustomTable 
-                                title="List of Warehouses"
-                                header={ware_header}
-                                trows={test}
-                                handleRowClick={this.handleRowClick}
-                                />
+                        <Col xs="12" md="5">
+                            <Card height='100%' width="100%">
+                                <CardBody>
+                                { this.state.isCustomerView ? 
+                                    <>
+                                        <Row>
+                                            <Col md="8">
+                                                <h2>List of Customers</h2>
+                                            </Col>
+                                            
+                                        </Row> 
+                                        <CustomTable 
+                                            title=""
+                                            header={this.state.customerHeader}
+                                            trows={this.state.customerTable}
+                                            handleRowClick={this.handleCustomerRowClick}
+                                            />
+                                    </> :
+                                    <>
+                                        <Row>
+                                            <Col md="7">
+                                                <h2>List of Warehouses</h2>
+                                            </Col>
+                                            <Col md="5">
+                                            
+                                            <ButtonGroup>
+                                                <Button onClick={this.modalToggle}>Add</Button>
+                                                <Button onClick={this.deleteToggle}>Delete</Button>
+                                                <Button onClick={this.backToCustomer}>Go Back</Button>
+                                            </ButtonGroup>
+                                        </Col>
+                                        </Row>
+                                        <Table xs="10" hover={true}>
+                                        <thead>
+                                        <tr>
+                                            {
+                                                this.state.table_header.map((hr) => {
+                                                    return(
+                                                        <th>{hr}</th>
+                                                    );
+                                                })
+                                            }
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                            {
+                                                this.state.table_data.map((r) => {
+                                                    return(
+                                                    <tr onClick={(e) => this.handleWarehouseRowClick(e, r)}>
+                                                        <td>{r[0]}</td>
+                                                        <td>{r[1]}</td>
+                                                        <td>{r[2]}</td>
+                                                        <td>{r[3]}</td>
+                                                        <td>{r[4]}</td>
+                                                    </tr>);
+                                                })
+                                            }
+                                        </tbody>
+                                    </Table>
+                                        </>
+                                }
                                 </CardBody>
-                                </Card>
+                            </Card>
                         </Col>
                     </Row>
-                    <Modal isOpen={this.state.modal} toggle={this.modalToggle}>
-                            <ModalHeader toggle={this.modalToggle}>Add Warehouse</ModalHeader>
+
+                    <Modal isOpen={this.state.deleteModal} toggle={this.deleteToggle}>
+                        <ModalHeader toggle={this.deleteToggle}>Delete Warehouse</ModalHeader>
                         <ModalBody>
-                        <LineChart width={600} height={300} data={this.state.chart_data}>
-                                <Line type="monotone" dataKey="uv" stroke="#8884d8" />
-                                <CartesianGrid stroke="#ccc" />
-                                <XAxis dataKey="name" />
-                                <YAxis />
-                            </LineChart>
-                            <CustomTable title="List of Orders" header={order_header} trows={test} handleRowClick={this.handleRowClick}/>
-                                <Button onClick={this.modalToggle}>Add Sensor</Button>
+                            <Form onSubmit={this.deleteWarehouseSubmit}>
+                                <FormGroup>
+                                    <Label for="exampleEmail">Warehouse Name</Label>
+                                    <Input type="select" name="warehouse_delete">
+                                        <option value="alpha">Alpha</option>
+                                        <option value="bravo">Bravo</option>
+                                        <option value="charlie">Charlie</option>
+                                        <option value="delta">Delta</option>
+                                        <option value="epsilon">Epsilon</option>
+                                        <option value="foxtrot">Foxtrot</option>
+                                    </Input>
+                                </FormGroup>
+                            </Form>
                         </ModalBody>
                         <ModalFooter>
-                        <Button color="primary" onClick={this.modalToggle}>Do Something</Button>{' '}
-                        <Button color="secondary" onClick={this.modalToggle}>Cancel</Button>
+                            <Button color="danger" onClick={this.deleteToggle}>Delete</Button>{' '}
+                            <Button color="primary" onClick={this.deleteToggle}>Cancel</Button>
+                        </ModalFooter>
+                    </Modal>
+
+                    <Modal isOpen={this.state.modal} toggle={this.modalToggle}>
+                        <ModalHeader toggle={this.modalToggle}>Add Warehouse</ModalHeader>
+                        <ModalBody>
+                            <Form onSubmit={this.addWarehouseSubmit}>
+                                <FormGroup>
+                                    <Label for="exampleEmail">Warehouse Name</Label>
+                                    <Input type="email" name="email" id="exampleEmail" placeholder="Name here..." />
+                                </FormGroup>
+                                <FormGroup>
+                                    <Label>Address</Label>
+                                    <Input name="address"/>
+                                    <Row>
+                                        <Col>
+                                            <Label>City</Label>
+                                            <Input name="city"/>
+                                        </Col>
+                                        <Col>
+                                            <Label>State</Label>
+                                            <Input name="address"/>
+                                        </Col>
+                                        <Col>
+                                            <Label>Zipcode</Label>
+                                            <Input name="address"/>
+                                        </Col>
+                                    </Row>
+                                </FormGroup>
+                            </Form>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="primary" onClick={this.modalToggle}>Add</Button>{' '}
+                            <Button color="danger" onClick={this.modalToggle}>Cancel</Button>
                         </ModalFooter>
                     </Modal>
                 </div>
@@ -162,4 +398,4 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 export default GoogleApiWrapper({
     apiKey: ("")
-  })(InfraDashboard)
+  })(withRouter(InfraDashboard));

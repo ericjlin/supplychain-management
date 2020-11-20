@@ -11,10 +11,9 @@ import {
   Switch,
   Redirect,
 } from "react-router-dom";
-import Sensors from './Sensors.jsx';
-
 
 class App extends React.Component {
+
   isLoggedIn() {
     return localStorage.getItem("user") != null;
   }

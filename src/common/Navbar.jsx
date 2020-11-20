@@ -58,7 +58,7 @@ class NavBar extends React.Component {
                             </DropdownToggle>
                         <DropdownMenu>
                             <DropdownItem header>Profile</DropdownItem>
-                            <DropdownItem href="/profile">Settings</DropdownItem>
+                            <Link className="dropdown-item" to="/profile">Settings</Link>
                             <DropdownItem href="">Support</DropdownItem>
                             <DropdownItem divider />
                             <DropdownItem onClick={this.handleLogout}>Logout</DropdownItem>

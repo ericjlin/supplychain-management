@@ -22,7 +22,7 @@ import {
           return(
               <div>
                 <h3>{this.props.title}</h3>    
-                <Table hover={true}>
+                <Table xs="10" hover={true}>
                     <thead>
                     <tr>
                         {

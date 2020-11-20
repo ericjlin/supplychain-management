@@ -14,9 +14,8 @@ class SupportDashboard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            modal: false,
             isOpen: false,
-            table_header: [],
+            table_header: ["Name", "Orders", "Location", "Status"],
             table_data: [],
             showTooltip: {},
             activeMarker: null,
@@ -24,50 +23,14 @@ class SupportDashboard extends React.Component {
                 name: "",
                 status: "Unknown"
             },
-            markerData: [{
-                "id" : 1,
-                "location": {
-                    "lat": 40.854885,
-                    "lng": -88.081807},
-                "status" : "operational",
-                "orders": 20
-            },
-            {
-                "id" : 2,
-                "location": {
-                    "lat": 30.266666,
-                    "lng": -97.733330},
-                "status" : "operational",
-                "orders": 5
-            },
-            {
-                "id" : 3,
-                "location": {
-                    "lat": 38.854885,
-                    "lng": -88.081807},
-                "status" : "operational",
-                "orders": 100
-            },
-            {
-                "id" : 4,
-                "location": {
-                    "lat": 37.773972,
-                    "lng": -122.431297},
-                "status" : "error",
-                "orders": 0
-            },
-            {
-                "id" : 5,
-                "location": {
-                    "lat": 40.730610 ,
-                    "lng": -73.935242},
-                "status" : "operational",
-                "orders": 19
-            }],
+            markerData: [],
             customerTable: [],
             customerHeader: ["Name", "# of Warehouses"],
             isCustomerView: true,
-            selectedCustomer: ""
+            selectedCustomer: "",
+            searchBarValue: "",
+            zoom: 14,
+            centerLocation: {}
         }
     }
 
@@ -75,27 +38,51 @@ class SupportDashboard extends React.Component {
         const role = localStorage.getItem('user');
 
         this.grabCustomer();
-        this.setState({
-            table_header : ["ID", "Name", "Orders", "Location", "Status"],
-            table_data : [
-                [1, "Alpha", "20", "Texas", "Operational"],
-                [2, "Bravo", "5", "Nevada", "Operational"],
-                [3, "Charlie", "100", "New York", "Sensor Issue"],
-                [4, "Delta", "0", "San Francisco", "Operational"],
-                [5, "Epsilon", "19", "Kansas", "Operational"],
-                [6, "Foxtrot", "4", "Kansas", "No Sensors Detected"]
-            ]
-        });
+        this.grabAllWarehouse();
         // grab all warehouse in user's home region and load on map
         // default detailed warehouse is first on the list 
         // run a condition check on role
         // Manager and IOT Support will get table of customer
     }
 
+    grabAllWarehouse = () => {
+
+        let warehouses = []
+        customerJson.forEach((customer) => {
+            let tmp = customer.warehouses.map((ware) => {
+                ware.customer = customer.name;
+                return ware;
+            });
+            console.log(tmp);
+            warehouses = warehouses.concat(tmp);
+        });
+        this.setState({
+            markerData: warehouses
+        });
+    }
 
     // need list of longitude and latitude to define marker locations
     searchWarehouse = (e) => {
         // search warehouse
+        e.preventDefault();
+        let loc = {
+            lat: -1, 
+            lng: -1
+        };
+        this.state.markerData.forEach((ware) => {
+            if (this.state.searchBarValue === ware.state ) {
+                // zoom in
+                loc = ware.location;
+            }
+        });
+        if (loc.lat < 0) {
+             console.log("NOt found");
+        } else {
+            this.setState({
+                zoom: 14,
+                centerLocation: loc
+            });
+        }
     }
 
     grabCustomer = () =>  {
@@ -109,27 +96,37 @@ class SupportDashboard extends React.Component {
         });
     }
 
-    modalToggle = (e) => {
-        e.preventDefault();
-        this.setState({
-            modal: !this.state.modal
-        });
-    }
-
-    collapse = (e) => {
-        e.preventDefault();
-        this.setState({
-            isOpen: !this.state.isOpen
-        });
-    }
-
     handleCustomerRowClick = (e, r) => {
         // handle clicking a row
-        console.log(e.target, r);
         // condition check to see if row is for individual warehouse or for everything
         // clicking orders won't do anything
+
+        // setup table
+        let customer_data = [];
+        customerJson.forEach((customer) => {
+            if (customer.name === r[0]) {
+                customer_data = customer.warehouses.map((ware) => {
+                    return [ware.name, ware.orders, ware.state, ware.status];
+                });
+            }
+        });
+
+        //setup customer markers
+        let customer_marker = [];
+        customerJson.forEach((customer) => {
+            if (customer.name === r[0]) {
+                customer_marker = customer.warehouses.map((ware) => {
+                    return ware;
+                });
+            }
+        });
+        // marker
+
         this.setState({
-            isCustomerView: !this.state.isCustomerView
+            isCustomerView: !this.state.isCustomerView,
+            selectedCustomer: r[0],
+            table_data: customer_data,
+            markerData: customer_marker
         });
     }
 
@@ -138,34 +135,33 @@ class SupportDashboard extends React.Component {
         this.props.history.push({
             pathname: '/support_warehouse',
             state: {
-                warehouseId: r[0],
-                name: r[1]
+                name: r[0]
             }
         });
     }
 
     backToCustomer = () => {
+        this.grabAllWarehouse();
         this.setState({
             isCustomerView: !this.state.isCustomerView
         });
     }
 
     onMarkerClick = (props, marker) => {
-        console.log(props);
-        let h = props.name.split(" ");
+        let h = props.name.split("-");
         console.log(h);
         this.setState({
             activeMarker: marker,
             showTooltip: true,
             selectedMarkerInfo: {
                 name: h[0],
-                status: h[1]
+                status: h[1],
+                customer: h[2] ? h[2] : null
             }
         });
     }
 
     onToolTipClose = (e) => {
-        console.log(e);
         // e.preventDefault();
         this.setState({
             activeMarker: null,
@@ -175,7 +171,6 @@ class SupportDashboard extends React.Component {
 
     // close tooltip if user clicks off the tooltip
     onMapClick = (e) => {
-        console.log(e);
         if (this.state.showTooltip) {
             this.setState({
                 activeMarker: null,
@@ -184,39 +179,46 @@ class SupportDashboard extends React.Component {
         }
     }
 
-
+    handleSearchChange = (e) => {
+        e.preventDefault();
+        console.log(e.target.value);
+        this.setState({
+            searchBarValue: e.target.value
+        });
+    }
 
     render () {
         return(
                 <div className="pt-2 container-fluid">
-                    <Form>
+                    <Form onSubmit={this.searchWarehouse}>
                         <Row>
-                            <Col md="6">
+                            <Col xs="9" md="7">
                                 <FormGroup>
-                                    <Input name="search" id="search" placeholder="Enter a address, zip code or city...." />
+                                    <Input name="search"
+                                    id="search"
+                                    onChange={this.handleSearchChange}
+                                    value={this.state.searchBarValue}
+                                    placeholder="Enter a address, zip code or city...." />
                                 </FormGroup>
                             </Col>
-                            <Col>
-                                <Button onClick={this.collapse}>Submit</Button>
+                            <Col md="1" xs="1">
+                                <Button color="primary" type="submit">Submit</Button>
                             </Col>
                             { !this.state.isCustomerView ?
                             <Col md="5">
-                                <h2 >Currently Viewing Customer: Name</h2>
+                                <h2 >Currently Viewing: {this.state.selectedCustomer}</h2>
                             </Col>
                             : null}
                         </Row>
                     </Form>
                     <Row>
-                        <Col md="7">
+                        <Col xs="12" md="7">
+                        <div style={{ position: 'relative', width: '100%', height: '80vh' }}>
                             <Map 
                                 google={this.props.google} 
-                                style={{width: '90%', height: '800px', position: 'relative'}}
-                                initialCenter={{
-                                    lat: 40.854885,
-                                    lng: -88.081807
-                                }}
+                                center={this.state.centerLocation}
                                 onClick={this.onMapClick}
-                                zoom={14}>
+                                zoom={this.state.zoom}>
                                 {
                                     this.state.markerData.map(
                                         (obj, index) => {
@@ -225,7 +227,7 @@ class SupportDashboard extends React.Component {
                                             return(
                                                 <Marker
                                                     key={index}
-                                                    name={`${obj.id} ${obj.status}`}
+                                                    name={`${obj.name}-${obj.status}-${obj.customer}`}
                                                     onClick={this.onMarkerClick}
                                                     position={{
                                                         lat: lat,
@@ -246,6 +248,12 @@ class SupportDashboard extends React.Component {
                                                             </Col>
                                                         </Row>
                                                         <Row className="justify-content-center">
+                                                            {
+                                                                this.state.selectedMarkerInfo.customer ?
+                                                                <Col>
+                                                                    <p>{this.state.selectedMarkerInfo.customer}</p>
+                                                                </Col> : null
+                                                            }
                                                             <Col>
                                                                 <Badge 
                                                                     color={this.state.selectedMarkerInfo.status === "error" ? 
@@ -257,8 +265,9 @@ class SupportDashboard extends React.Component {
                                                     </div>
                                         </InfoWindow>
                             </Map>
+                            </div>
                         </Col>
-                        <Col md="5">
+                        <Col xs="12" md="5">
                             <Card height='100%' width="100%">
                                 <CardBody>
                                 { this.state.isCustomerView ? 
@@ -282,7 +291,7 @@ class SupportDashboard extends React.Component {
                                                 <h2>List of Warehouses</h2>
                                             </Col>
                                             <Col md="4">
-                                            <Button onClick={this.backToCustomer}>Go Back</Button>
+                                            <Button color="primary" onClick={this.backToCustomer}>Go Back</Button>
                                         </Col>
                                         </Row>
                                         <CustomTable 
@@ -297,40 +306,6 @@ class SupportDashboard extends React.Component {
                             </Card>
                         </Col>
                     </Row>
-
-                    <Modal isOpen={this.state.modal} toggle={this.modalToggle}>
-                        <ModalHeader toggle={this.modalToggle}>Add Warehouse</ModalHeader>
-                        <ModalBody>
-                            <Form onSubmit={this.addWarehouseSubmit}>
-                                <FormGroup>
-                                    <Label for="exampleEmail">Warehouse Name</Label>
-                                    <Input type="email" name="email" id="exampleEmail" placeholder="Name here..." />
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label>Address</Label>
-                                    <Input name="address"/>
-                                    <Row>
-                                        <Col>
-                                            <Label>City</Label>
-                                            <Input name="city"/>
-                                        </Col>
-                                        <Col>
-                                            <Label>State</Label>
-                                            <Input name="address"/>
-                                        </Col>
-                                        <Col>
-                                            <Label>Zipcode</Label>
-                                            <Input name="address"/>
-                                        </Col>
-                                    </Row>
-                                </FormGroup>
-                            </Form>
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button color="primary" onClick={this.modalToggle}>Add</Button>{' '}
-                            <Button color="danger" onClick={this.modalToggle}>Cancel</Button>
-                        </ModalFooter>
-                    </Modal>
                 </div>
         );
     }
