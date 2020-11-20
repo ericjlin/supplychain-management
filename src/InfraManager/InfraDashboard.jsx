@@ -213,7 +213,7 @@ class InfraDashboard extends React.Component {
                                 </FormGroup>
                             </Col>
                             <Col xs="1" md="1">
-                                <Button onClick={this.searchWarehouse}>Submit</Button>
+                                <Button color="primary" onClick={this.searchWarehouse}>Submit</Button>
                             </Col>
                             { !this.state.isCustomerView ?
                             <Col xs="12" md="5">
@@ -304,9 +304,9 @@ class InfraDashboard extends React.Component {
                                             <Col md="5">
                                             
                                             <ButtonGroup>
-                                                <Button onClick={this.modalToggle}>Add</Button>
-                                                <Button onClick={this.deleteToggle}>Delete</Button>
-                                                <Button onClick={this.backToCustomer}>Go Back</Button>
+                                                <Button color="primary" onClick={this.modalToggle}>Add</Button>
+                                                <Button color="danger" onClick={this.deleteToggle}>Delete</Button>
+                                                <Button color="info" onClick={this.backToCustomer}>Go Back</Button>
                                             </ButtonGroup>
                                         </Col>
                                         </Row>

@@ -12,9 +12,7 @@ class Layout extends React.Component {
         return(
             <div>
                 <Navbar />
-                {/* <div className="container"> */}
-                    {this.props.children}
-                {/* </div> */}
+                {this.props.children}
             </div>
         );
     }

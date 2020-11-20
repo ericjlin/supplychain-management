@@ -58,8 +58,6 @@ TODO: Work on modal forms for edit profile, edit billing and view charts
             ['16:00', "sensor",76]
         ]
         });
-
-
     }
 
     expenseToggle = () => {
@@ -69,7 +67,7 @@ TODO: Work on modal forms for edit profile, edit billing and view charts
     }
       render() {
           return(
-                <Container className="pt-4">
+                <Container className="pt-4 pb-4">
                     
                     <Row className="justify-content-md-center">
                         
@@ -108,7 +106,7 @@ TODO: Work on modal forms for edit profile, edit billing and view charts
                                         </tr>
                                     </tbody>
                                 </Table>
-                                <Button>Edit Profile</Button>
+                                <Button color="primary">Edit Profile</Button>
                             </Row>
                             
                         </Col>
@@ -146,7 +144,7 @@ TODO: Work on modal forms for edit profile, edit billing and view charts
                                     </LineChart>
                                 </ResponsiveContainer>
                             </Row>
-                            <Button onClick={this.expenseToggle}>See Details</Button>
+                            <Button color="primary" onClick={this.expenseToggle}>See Details</Button>
                         </Col>
                     </Row>
 
@@ -160,7 +158,7 @@ TODO: Work on modal forms for edit profile, edit billing and view charts
                             handleRowClick={() => {}}/>
                     </ModalBody> 
                     <ModalFooter>
-                        <Button color="secondary" onClick={this.expenseToggle}>Done</Button>
+                        <Button color="primary" onClick={this.expenseToggle}>Done</Button>
                     </ModalFooter>       
                 </Modal>
                 </Container>

@@ -306,7 +306,7 @@ import customerJson from './mock_data/customer';
                         </ModalBody>
                         <ModalFooter>
                             <Button color="danger" onClick={this.deleteToggle}>Delete</Button>{' '}
-                            <Button color="primary" onClick={this.deleteToggle}>Cancel</Button>
+                            <Button color="info" onClick={this.deleteToggle}>Go Back</Button>
                         </ModalFooter>
                     </Modal>
 
@@ -335,6 +335,10 @@ import customerJson from './mock_data/customer';
                                             <Input name="address"/>
                                         </Col>
                                     </Row>
+                                </FormGroup>
+                                <FormGroup>
+                                    <Label for="exampleEmail">Schedule(grab every second)</Label>
+                                    <Input type="number" name="email" id="exampleEmail" placeholder="0" />
                                 </FormGroup>
                             </Form>
                         </ModalBody>

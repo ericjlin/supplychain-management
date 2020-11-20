@@ -41,14 +41,14 @@ class NavBar extends React.Component {
         return(
             <div>
                 <Navbar color="light" light expand="md">
-                    <NavbarBrand href="/">Welcome {this.state.role}!</NavbarBrand>
+                    <Link className="navbar-brand" to="/">Welcome {this.state.role}!</Link>
                     <Nav className="mr-auto" navbar>
                         <NavItem>
-                            <NavLink href="/">Home</NavLink>
+                            <Link className="nav-link" to="/">Home</Link>
                         </NavItem>
                     </Nav>
                     <Dropdown className="pr-2" isOpen={this.state.profileToggle} toggle={this.profileToggle}>
-                        <DropdownToggle color="secondary" caret>
+                        <DropdownToggle color="info" caret>
                             Profile
                             </DropdownToggle>
                         <DropdownMenu>

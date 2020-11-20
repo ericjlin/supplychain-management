@@ -75,7 +75,7 @@ class SupportWarehouse extends React.Component {
                     <h2>Warehouse {this.state.warehouseName}</h2>
                     </Col>
                     <Col md="2">
-                        <Link className="btn btn-primary" to="/">Go Back</Link>
+                        <Link className="btn btn-info" to="/">Go Back</Link>
                     </Col>
                 </Row>
                 <Row>

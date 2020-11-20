@@ -160,7 +160,7 @@ class Warehouse extends React.Component {
                     </Col>
                     <Col md="2">
                         <Button color="primary" onClick={this.addSensorToggle}>Add Sensor</Button>{' '}
-                        <Link className="btn btn-primary" to="/">Go Back</Link>
+                        <Link className="btn btn-info" to="/">Go Back</Link>
                     </Col>
                 </Row>
                 <Row>
@@ -229,6 +229,98 @@ class Warehouse extends React.Component {
                             );
                         })
                     }
+                     <Col className="pb-4" md="auto">
+                         <Card width='100%'>
+                             <CardBody >
+                                 <CardTitle tag="h5">Orders Summary</CardTitle>
+                                 <ResponsiveContainer width='100%' height={300}>
+                                 <PieChart width={400} height={400}>
+                                     <Pie
+                                     data={pieData}
+                                     cx={200}
+                                     cy={150}
+                                     labelLine={false}
+                                     label={this.renderCustomizedLabel}
+                                     outerRadius={80}
+                                     fill="#8884d8"
+                                     dataKey="value"
+                                     >
+                                     {
+                                         pieData.map((entry, index) => 
+                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} 
+                                         />)
+                                     }
+                                     </Pie>
+                                 </PieChart>
+                                 </ResponsiveContainer>
+                                 <Table>
+                                     <thead>
+                                         <tr>
+                                             <td>Order#</td>
+                                             <td>Type</td>
+                                             <td>Origin</td>
+                                             <td>Destination</td>
+                                         </tr>
+                                     </thead>
+                                     <tbody>
+                                         <tr>
+                                             <td>1</td>
+                                             <td>Corn</td>
+                                             <td>San Francsico</td>
+                                             <td>Las Vegas</td>
+                                         </tr>
+                                         <tr>
+                                             <td>2</td>
+                                             <td>Fruit</td>
+                                             <td>San Francsico</td>
+                                             <td>New York</td>
+                                         </tr>
+                                         <tr>
+                                             <td>3</td>
+                                             <td>Fruit</td>
+                                             <td>San Francsico</td>
+                                             <td>Seattle</td>
+                                         </tr>
+                                         <tr>
+                                             <td>4</td>
+                                             <td>Food</td>
+                                             <td>San Francsico</td>
+                                             <td>Miami</td>
+                                         </tr>
+                                     </tbody>
+                                 </Table>
+                                 <Pagination aria-label="Page navigation example">
+                                     <PaginationItem>
+                                         <PaginationLink first onClick={()=> {console.log("load first")}}/>
+                                     </PaginationItem>
+                                     <PaginationItem>
+                                         <PaginationLink previous />
+                                     </PaginationItem>
+                                     <PaginationItem>
+                                         <PaginationLink >
+                                         1
+                                         </PaginationLink>
+                                     </PaginationItem>
+                                     <PaginationItem>
+                                         <PaginationLink >
+                                         2
+                                         </PaginationLink>
+                                     </PaginationItem>
+                                     <PaginationItem>
+                                         <PaginationLink >
+                                         3
+                                         </PaginationLink>
+                                     </PaginationItem>
+                                     <PaginationItem>
+                                         <PaginationLink next />
+                                     </PaginationItem>
+                                     <PaginationItem>
+                                         <PaginationLink last />
+                                     </PaginationItem>
+                                 </Pagination>
+                             </CardBody>
+                         </Card>
+                     </Col>
                 </Row>
 
                 <Modal isOpen={this.state.addSensorModal} toggle={this.addSensorToggle}>
@@ -255,7 +347,7 @@ class Warehouse extends React.Component {
                             </FormGroup>
                             <ModalFooter>
                                 <Button color="primary" type="submit" onClick={this.addSensorToggle}>Submit</Button>{' '}
-                                <Button color="secondary" onClick={this.addSensorToggle}>Cancel</Button>
+                                <Button color="danger" onClick={this.addSensorToggle}>Cancel</Button>
                             </ModalFooter>
                         </Form>
                     </ModalBody>        
@@ -291,7 +383,7 @@ class Warehouse extends React.Component {
                             </FormGroup>
                             <ModalFooter>
                                 <Button color="primary" type="submit" >Update</Button>{' '}
-                                <Button color="secondary" onClick={this.manageSensorToggle}>Cancel</Button>
+                                <Button color="danger" onClick={this.manageSensorToggle}>Cancel</Button>
                     </ModalFooter> 
                         </Form>
                     </ModalBody>  

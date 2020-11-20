@@ -37,10 +37,6 @@ import {
                     <tbody>
                         {
                             this.props.trows.map((r) => {
-                                // const tmp = [];
-                                // r.forEach(i => {
-                                //     tmp.add(<t>)
-                                // });
                                 return(
                                 <tr onClick={(e) => this.props.handleRowClick(e, r)}>
                                     <td>{r[0]}</td>

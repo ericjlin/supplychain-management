@@ -116,7 +116,7 @@ class SupportWarehouse extends React.Component {
                     </Col>
                     <Col md="2">
                         <Button color="primary" onClick={this.addSensorToggle}>Add Sensor</Button>{' '}
-                        <Link className="btn btn-primary" to="/">Go Back</Link>
+                        <Link className="btn btn-info" to="/">Go Back</Link>
                     </Col>
                 </Row>
                 <Row>
@@ -224,7 +224,7 @@ class SupportWarehouse extends React.Component {
                             </FormGroup>
                             <ModalFooter>
                                 <Button color="primary" type="submit" onClick={this.addSensorToggle}>Submit</Button>{' '}
-                                <Button color="secondary" onClick={this.addSensorToggle}>Cancel</Button>
+                                <Button color="danger" onClick={this.addSensorToggle}>Cancel</Button>
                             </ModalFooter>
                         </Form>
                     </ModalBody>        
