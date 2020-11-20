@@ -76,7 +76,7 @@ class SupportDashboard extends React.Component {
             }
         });
         if (loc.lat < 0) {
-             console.log("NOt found");
+             console.log("Not found");
         } else {
             this.setState({
                 zoom: 14,

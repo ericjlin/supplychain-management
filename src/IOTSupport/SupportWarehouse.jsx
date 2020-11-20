@@ -4,11 +4,13 @@ import {
     FormGroup, Input, Label, FormText,
     Button, Row, Card, CardText, CardBody,
     CardTitle, CardSubtitle,Modal, ModalHeader, ModalBody, ModalFooter,
-    Container
+    Container, Pagination, PaginationItem, PaginationLink
   } from 'reactstrap';
 import CustomTable from "../common/CustomTable.jsx";
 import { ResponsiveContainer,LineChart, Line, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
 import { Link } from "react-router-dom";
+import customerJson from '../mock_data/customer.js';
+
 
 class SupportWarehouse extends React.Component {
     constructor(props) {
@@ -33,68 +35,24 @@ class SupportWarehouse extends React.Component {
     componentDidMount() {
         // console.log(this.props.location.state.warehouseId);
         console.log(this.state.warehouseId);
-        this.setState({
-            chart_data : [
-            {name: '15:05', temperature: 68, threshold: 80},
-            {name: '15:10', temperature: 69, threshold: 80}, 
-            {name: '15:15', temperature: 66, threshold: 80}, 
-            {name: '15:20', temperature: 66, threshold: 80},
-            {name: '15:25', temperature: 68, threshold: 80},
-            {name: '15:30', temperature: 70, threshold: 80},
-            {name: '15:35', temperature: 71, threshold: 80},
-            {name: '15:40', temperature: 71, threshold: 80},
-            {name: '15:45', temperature: 71, threshold: 80},
-            {name: '15:50', temperature: 75, threshold: 80},
-            {name: '15:55', temperature: 75, threshold: 80},
-            {name: '16:00', temperature: 76, threshold: 80}
-        ]
-        });
-
-        let chartdata = [
-            {sensorId: "1",
-            sensorName: "Sensor #1",
-            data: [
-                    {name: '15:05', temperature: 68, threshold: 80},
-                    {name: '15:10', temperature: 69, threshold: 80}, 
-                    {name: '15:15', temperature: 66, threshold: 80}, 
-                    {name: '15:20', temperature: 66, threshold: 80},
-                    {name: '15:25', temperature: 68, threshold: 80},
-                    {name: '15:30', temperature: 70, threshold: 80},
-                    {name: '15:35', temperature: 71, threshold: 80},
-                    {name: '15:40', temperature: 71, threshold: 80},
-                    {name: '15:45', temperature: 71, threshold: 80},
-                    {name: '15:50', temperature: 75, threshold: 80},
-                    {name: '15:55', temperature: 75, threshold: 80},
-                    {name: '16:00', temperature: 76, threshold: 80}
-                ]
-            },
-            {sensorId: "2"}
-        ];
         // make call to grab all sensor data from the selected warehouse
         // default detailed warehouse is first on the list 
     }
 
-    addSensorToggle = () => {
-        this.setState({
-            addSensorModal: !this.state.addSensorModal
-        });
-    }
-
-    addSensorSubmit = (e) => {
-        // add sensor
-        e.preventDefault();
-        console.log("Adding sensors..");
-    }
-
-    manageSensorToggle = () => {
-        this.setState({
-            manageSensorModal: !this.state.manageSensorModal
-        });
-    }
-    manageOrderToggle = () => {
-        this.setState({
-            manageOrderModal: !this.state.manageOrderModal
-        });
+    orderTablePagination(index) {
+        // organize order table pagination
+        const pageCount = Math.ceil(customerJson[0].warehouses[0].sensor[index].history.length / this.state.perPage);
+        const pages = [];
+        let cnt = 1;
+        while (pageCount >= cnt) {
+            pages.push(<PaginationItem>
+                <PaginationLink >
+                        {cnt}
+                </PaginationLink>
+            </PaginationItem>);
+            cnt += 1;
+        }
+        return pages;
     }
 
     grabAllSensor() {
@@ -108,256 +66,83 @@ class SupportWarehouse extends React.Component {
         // clicking orders won't do anything
     }
 
-    handleAddSensorChange = (e) => {
-        console.log(e.target.value);
-        this.setState({
-            addSensor: {
-                sensorType: e.target.value
-            }
-        });
-    }
-
-    renderCustomizedLabel = ({
-        cx, cy, midAngle, innerRadius, outerRadius, percent, index,
-      }) => {
-        const RADIAN = Math.PI / 180;
-        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-        const x = cx + radius * Math.cos(-midAngle * RADIAN);
-        const y = cy + radius * Math.sin(-midAngle * RADIAN);
-      
-        return (
-          <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
-            {`${(percent * 100).toFixed(0)}%`}
-          </text>
-        );
-    }
-
     render() {
-        const test = [
-            ["11/12/2020-16:15", "71"],
-            ["11/12/2020-16:10", "71"],
-            ["11/12/2020-16:05", "71"],
-            ["11/12/2020-16:00", "69"]
-        ];
-        const ware_header = ["Warehouse#", "First Name", "Last Name", "Username"];
-        const temperature_header = ["Time", "Temperature"];
-        const pieData = [
-            { name: 'Group A', value: 400 },
-            { name: 'Group B', value: 300 },
-            { name: 'Group C', value: 300 },
-            { name: 'Group D', value: 200 },
-          ];
-        const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+        const pages = [1, 2, 3];
         return(
-            <Container className="pb-5" fluid="xl">
+            <Container className="pb-5" fluid={true}>
                 <Row className="justify-content-md-center pt-4 pb-4">
-                    <Col md="4">
+                    <Col md="2">
                     <h2>Warehouse {this.state.warehouseName}</h2>
                     </Col>
-                    <Col md="4">
+                    <Col md="2">
                         <Link className="btn btn-primary" to="/">Go Back</Link>
                     </Col>
                 </Row>
                 <Row>
-                    <Col className="pb-4" md="auto">
-                        <Card style={{width:"500px"}}>
+                {
+                        customerJson[0].warehouses[0].sensor.map((sen, index) => {
+                            let header = [];
+                            let range = [0, 100];
+                            if (sen.type === "temperature") {
+                                header = ["Time", "Temperature"];
+                            } else if (sen.type === "uv") {
+                                header = ["Time", "UV Index"];
+                                range = [0, 10];
+                            } else if (sen.type === "humidity") {
+                                header = ["Time", "Concentration"];
+                            }
+
+                            const chart_data = [];
+                            sen.history.forEach((dt) => {
+                                let tmp = {"name": "", "generic": ""};
+                                let x = dt[0].split("-");
+                                tmp.name = x[1];
+                                tmp.generic = dt[1];
+                                chart_data.push(tmp);
+                            });
+                            
+                            return(
+                                <Col className="pb-4" xs="auto" md="4">
+                                    <Card width="100%">
                             <CardBody>
-                                <CardTitle tag="h5">Sensor #1</CardTitle>
+                                <CardTitle tag="h5">{sen.name}</CardTitle>
                                 <ResponsiveContainer width='100%' height={300}>
-                                    <LineChart  data={this.state.chart_data}>
-                                        <Line type="monotone" dataKey="temperature" stroke="#8884d8" />
-                                        <Line type="monotone" dataKey="threshold" stroke="#DC143C" />
+                                    <LineChart  data={chart_data}>
+                                        <Line type="monotone" dataKey="generic" stroke="#8884d8" />
                                         <CartesianGrid stroke="#ccc" />
                                         <XAxis dataKey="name" />
-                                        <YAxis domain={[0, 100]}/>
+                                        <YAxis domain={range}/>
                                     </LineChart>
                                 </ResponsiveContainer>
                                 <CustomTable 
                                     title="History" 
-                                    header={temperature_header} 
-                                    trows={test} 
+                                    header={header} 
+                                    trows={sen.history} 
                                     handleRowClick={this.handleRowClick}/>
-                                <Button onClick={this.manageSensorToggle}>Manage Sensor</Button>
-                            </CardBody>
-                        </Card>
-                    </Col>
-
-                    <Col md="auto">
-                        <Card style={{width:"500px"}}>
-                            <CardBody >
-                                <CardTitle tag="h5">Card2 title</CardTitle>
-                                <CardText>Some quick example text to build on the card title and make up the bulk of the card's content.</CardText>
-                                <ResponsiveContainer width={400} height={300}>
-                                    <LineChart width={400} height={300} data={this.state.chart_data}>
-                                        <Line type="monotone" dataKey="temperature" stroke="#8884d8" />
-                                        <Line type="monotone" dataKey="threshold" stroke="#8884d8" />
-                                        <CartesianGrid stroke="#ccc" />
-                                        <XAxis dataKey="name" />
-                                        <YAxis domain={[0, 100]}/>
-                                    </LineChart>
-                                </ResponsiveContainer>
-                                <CustomTable 
-                                    title="History" 
-                                    header={temperature_header} 
-                                    trows={test} 
-                                    handleRowClick={this.handleRowClick}/>
-                                <Button onClick={this.manageSensorToggle}>Manage Sensor</Button>
-                            </CardBody>
-                        </Card>
-                        
-                    </Col>
-                    <Col md="auto">
-                        <Card style={{width:"500px"}}>
-                            <CardBody >
-                                <CardTitle tag="h5">Card2 title</CardTitle>
-                                <CardText>Some quick example text to build on the card title and make up the bulk of the card's content.</CardText>
-                                <ResponsiveContainer width={400} height={300}>
-                                    <LineChart width={400} height={300} data={this.state.chart_data}>
-                                        <Line type="monotone" dataKey="uv" stroke="#8884d8" />
-                                        <CartesianGrid stroke="#ccc" />
-                                        <XAxis dataKey="name" />
-                                        <YAxis domain={[0, 100]}/>
-                                    </LineChart>
-                                </ResponsiveContainer>
-                                <CustomTable 
-                                    title="History" 
-                                    header={temperature_header} 
-                                    trows={test} 
-                                    handleRowClick={this.handleRowClick}/>
-                                <Button onClick={this.manageSensorToggle}>Manage Sensor</Button>
-                            </CardBody>
-                        </Card>
-                    </Col>
-                    <Col md="auto">
-                        <Card style={{width:"500px"}}>
-                            <CardBody >
-                                <CardTitle tag="h5">Orders Summary</CardTitle>
-                                <ResponsiveContainer width={400} height={300}>
-                                <PieChart width={400} height={400}>
-                                    <Pie
-                                    data={pieData}
-                                    cx={200}
-                                    cy={150}
-                                    labelLine={false}
-                                    label={this.renderCustomizedLabel}
-                                    outerRadius={80}
-                                    fill="#8884d8"
-                                    dataKey="value"
-                                    >
+                                <Pagination>
+                                    <PaginationItem>
+                                        <PaginationLink first/>
+                                    </PaginationItem>
+                                    <PaginationItem>
+                                        <PaginationLink previous />
+                                    </PaginationItem>
                                     {
-                                        pieData.map((entry, index) => 
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} 
-                                        />)
+                                        this.orderTablePagination(index)
                                     }
-                                    </Pie>
-                                </PieChart>
-                                </ResponsiveContainer>
-                                <Table>
-                                    <thead>
-                                        <tr>
-                                            <td>Order#</td>
-                                            <td>Type</td>
-                                            <td>Origin</td>
-                                            <td>Destination</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>Corn</td>
-                                            <td>San Francsico</td>
-                                            <td>Las Vegas</td>
-                                        </tr>
-                                        <tr>
-                                            <td>2</td>
-                                            <td>Fruit</td>
-                                            <td>San Francsico</td>
-                                            <td>New York</td>
-                                        </tr>
-                                        <tr>
-                                            <td>3</td>
-                                            <td>Fruit</td>
-                                            <td>San Francsico</td>
-                                            <td>Seattle</td>
-                                        </tr>
-                                        <tr>
-                                            <td>4</td>
-                                            <td>Food</td>
-                                            <td>San Francsico</td>
-                                            <td>Miami</td>
-                                        </tr>
-                                    </tbody>
-                                </Table>
-                                <Button onClick={this.manageOrderToggle}>Manage Orders</Button>
+                                    <PaginationItem>
+                                        <PaginationLink next />
+                                    </PaginationItem>
+                                    <PaginationItem>
+                                        <PaginationLink last />
+                                    </PaginationItem>
+                                </Pagination>
                             </CardBody>
                         </Card>
-                    </Col>
+                                </Col>
+                            );
+                        })
+                    }
                 </Row>
-
-                <Modal isOpen={this.state.addSensorModal} toggle={this.addSensorToggle}>
-                    <ModalHeader toggle={this.addSensorToggle}>Add Sensor</ModalHeader>
-                    <ModalBody>
-                        <Form onSubmit={this.addSensorSubmit}>
-                            <FormGroup>
-                                <Label for="exampleEmail">Sensor Name</Label>
-                                <Input type="email" name="email" id="exampleEmail" placeholder="Sensor #1" />
-                            </FormGroup>
-                            <FormGroup>
-                                <Label for="examplePassword">Location</Label>
-                                <Input type="password" name="password" id="examplePassword" placeholder="Second Floor" />
-                            </FormGroup>
-                            <FormGroup>
-                                <Label for="exampleSelect">Sensor Type</Label>
-                                <Input type="select" name="select" id="exampleSelect" 
-                                value={this.state.addSensor.sensorType} 
-                                onChange={this.handleAddSensorChange}>
-                                    <option value="temperature">Temperature</option>
-                                    <option value="humidity">Humidity</option>
-                                    <option value="uv">UV</option>
-                                    <option value="wind">Wind</option>
-                                </Input>
-                            </FormGroup>
-                            { this.state.addSensor.sensorType === "temperature" ? 
-                            <FormGroup>
-                                <Label for="exampleSelectMulti">Unit Type</Label>
-                                <Input type="select" name="selectMulti" id="exampleSelectMulti">
-                                <option>Fahrenheit</option>
-                                <option>Celsius</option>
-                                </Input>
-                            </FormGroup> : null}
-                            <FormGroup>
-                                <Label for="examplePassword">Threshold</Label>
-                                <Input type="password" name="password" id="examplePassword" placeholder="" />
-                            </FormGroup>
-                            <ModalFooter>
-                                <Button color="primary" type="submit" onClick={this.addSensorToggle}>Submit</Button>{' '}
-                                <Button color="secondary" onClick={this.addSensorToggle}>Cancel</Button>
-                            </ModalFooter>
-                        </Form>
-                    </ModalBody>        
-                </Modal>
-
-                <Modal isOpen={this.state.manageSensorModal} toggle={this.manageSensorToggle}>
-                    <ModalHeader toggle={this.manageSensorToggle}>Manage Sensor</ModalHeader>
-                    <ModalBody>
-                        {/* <IndividualSensors/> */}
-                    </ModalBody> 
-                    <ModalFooter>
-                    <Button color="primary" type="submit">Update</Button>{' '}
-                        <Button color="secondary" onClick={this.manageSensorToggle}>Cancel</Button>
-                    </ModalFooter>       
-                </Modal>
-
-                <Modal isOpen={this.state.manageOrderModal} toggle={this.manageOrderToggle}>
-                    <ModalHeader toggle={this.manageOrderToggle}>Manage Order</ModalHeader>
-                    <ModalBody>
-                        {/* <IndividualSensors/> */}
-                    </ModalBody> 
-                    <ModalFooter>
-                    <Button color="primary" type="submit">Update</Button>{' '}
-                        <Button color="secondary" onClick={this.manageOrderToggle}>Cancel</Button>
-                    </ModalFooter>       
-                </Modal>
             </Container>
         );
     }

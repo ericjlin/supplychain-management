@@ -16,9 +16,13 @@ class NavBar extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            profileToggle: false
+            profileToggle: false,
+            role: localStorage.getItem("user") ? 
+            localStorage.getItem("user") : ""
         }
     }
+
+    
 
     profileToggle = () => {
         this.setState({
@@ -37,29 +41,19 @@ class NavBar extends React.Component {
         return(
             <div>
                 <Navbar color="light" light expand="md">
-                    <NavbarBrand href="/">Welcome!</NavbarBrand>
+                    <NavbarBrand href="/">Welcome {this.state.role}!</NavbarBrand>
                     <Nav className="mr-auto" navbar>
                         <NavItem>
                             <NavLink href="/">Home</NavLink>
                         </NavItem>
-                        {/* <NavItem>
-                            <NavLink href="/sensors">Sensors</NavLink>
-                        </NavItem>
-                        <NavItem>
-                            <NavLink href="/warehouse">Warehouse(Test)</NavLink>
-                        </NavItem>
-                        <NavItem>
-                            <NavLink href="/diagnostic">Sensor Diagnostic(Test)</NavLink>
-                        </NavItem> */}
                     </Nav>
                     <Dropdown className="pr-2" isOpen={this.state.profileToggle} toggle={this.profileToggle}>
-                        <DropdownToggle caret>
+                        <DropdownToggle color="secondary" caret>
                             Profile
                             </DropdownToggle>
                         <DropdownMenu>
                             <DropdownItem header>Profile</DropdownItem>
                             <Link className="dropdown-item" to="/profile">Settings</Link>
-                            <DropdownItem href="">Support</DropdownItem>
                             <DropdownItem divider />
                             <DropdownItem onClick={this.handleLogout}>Logout</DropdownItem>
                         </DropdownMenu>

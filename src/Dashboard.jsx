@@ -11,7 +11,7 @@ import CustomTable from "./common/CustomTable.jsx";
 import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react';
 import { withRouter } from "react-router-dom";
 import Geocode from "react-geocode";
-
+import customerJson from './mock_data/customer';
 
  class Dashboard extends React.Component {
 
@@ -20,7 +20,7 @@ import Geocode from "react-geocode";
         this.state = {
             modal: false,
             isOpen: false,
-            table_header: [],
+            table_header: ["Name", "Orders", "Location", "Status"],
             table_data: [],
             showTooltip: {},
             activeMarker: null,
@@ -28,91 +28,54 @@ import Geocode from "react-geocode";
                 name: "",
                 status: "Unknown"
             },
-            markerData: [{
-                id : "1",
-                location: {
-                    lat: 40.854885,
-                    lng: -88.081807},
-                status : "operational",
-                orders: 20
-            },
-            {
-                id : "2",
-                location: {
-                    lat: 30.266666,
-                    lng: -97.733330},
-                status : "operational",
-                orders: 5
-            },
-            {
-                id : "3",
-                location: {
-                    lat: 38.854885,
-                    lng: -88.081807},
-                status : "operational",
-                orders: 100
-            },
-            {
-                id : "4",
-                location: {
-                    lat: 37.773972,
-                    lng: -122.431297},
-                status : "error",
-                orders: 0
-            },
-            {
-                id : "5",
-                location: {
-                    lat: 40.730610 ,
-                    lng: -73.935242},
-                status : "operational",
-                orders: 19
-            }],
+            markerData: customerJson[0].warehouses,
             deleteModal: false,
             selectedLocation: {
                 lat: "",
                 lng: ""
-            }
+            },
+            searchBarValue: "",
+            centerLocation: {},
+            role: "" 
         }
     }
 
     componentDidMount() {
         const role = localStorage.getItem('user');
-        if (role === 'manager' || role === 'support') {
-            // show customers
-            console.log('manager or support!');
-            this.chart_data = [
-                ["Customer1", "Data", "Data"],
-                ["Customer1", "Data", "Data"],
-                ["Customer1", "Data", "Data"],
-                ["Customer1", "Data", "Data"],
-                ["Customer1", "Data", "Data"],
-            ];
-        } else if (role === 'supplier') {
-            // show current user warehouses
-            console.log('supplier!');
-        }
+        this.populateWarehouseTable();
+    }
 
-        this.setState({
-            table_header : ["Name", "Orders", "Location", "Status"],
-            table_data : [
-                ["Alpha", "20", "Texas", "Operational"],
-                ["Bravo", "5", "Nevada", "Operational"],
-                ["Charlie", "100", "New York", "Sensor Issue"],
-                ["Delta", "0", "San Francisco", "Operational"],
-                ["Epsilon", "19", "Kansas", "Operational"],
-                ["Foxtrot", "4", "Kansas", "No Sensors Detected"]
-            ]
+    populateWarehouseTable() {
+        let tmp = customerJson[0].warehouses.map((ware) => {
+            return [ware.name, ware.orders, ware.state, ware.status];
         });
-        // grab all warehouse in user's home region and load on map
-        // default detailed warehouse is first on the list 
-        // run a condition check on role
-        // Manager and IOT Support will get table of customer
+        this.setState({
+            table_data: tmp
+        });
     }
 
     // need list of longitude and latitude to define marker locations
     searchWarehouse = (e) => {
         // search warehouse
+        e.preventDefault();
+        let loc = {
+            lat: -1, 
+            lng: -1
+        };
+        this.state.markerData.forEach((ware) => {
+            if (this.state.searchBarValue === ware.state ) {
+                // zoom in
+                loc = ware.location;
+            }
+        });
+        if (loc.lat < 0) {
+             console.log("Not found");
+        } else {
+            this.setState({
+                zoom: 14,
+                centerLocation: loc
+            });
+        }
     }
 
     modalToggle = (e) => {
@@ -153,7 +116,7 @@ import Geocode from "react-geocode";
 
     onMarkerClick = (props, marker) => {
         console.log(props);
-        let h = props.name.split(" ");
+        let h = props.name.split("-");
         console.log(h);
         this.setState({
             activeMarker: marker,
@@ -202,20 +165,30 @@ import Geocode from "react-geocode";
         }
     }
 
-
+    handleSearchChange = (e) => {
+        e.preventDefault();
+        console.log(e.target.value);
+        this.setState({
+            searchBarValue: e.target.value
+        });
+    }
 
     render () {
         return(
                 <Container className="pt-2" fluid={true}>
-                    <Form>
+                    <Form onSubmit={this.searchWarehouse}>
                         <Row>
                             <Col md="7" xs="9">
                             <FormGroup>
-                                <Input name="search" id="search" placeholder="Enter a address, zip code or city...." />
+                                <Input name="search"
+                                id="search"
+                                onChange={this.handleSearchChange}
+                                value={this.state.searchBarValue}
+                                placeholder="Enter a address, zip code or city...." />
                             </FormGroup>
                             </Col>
                             <Col md="1" xs="1">
-                            <Button onClick={this.collapse}>Submit</Button>
+                            <Button color="primary" type="submit">Submit</Button>
                             </Col>
                         </Row>
                     </Form>
@@ -224,10 +197,7 @@ import Geocode from "react-geocode";
                         <div style={{ position: 'relative', width: '100%', height: '80vh' }}>
                             <Map 
                                 google={this.props.google} 
-                                initialCenter={{
-                                    lat: 40.854885,
-                                    lng: -88.081807
-                                }}
+                                center={this.state.centerLocation}
                                 onClick={this.onMapClick}
                                 zoom={14}>
                                 {
@@ -238,7 +208,7 @@ import Geocode from "react-geocode";
                                             return(
                                                 <Marker
                                                     key={index}
-                                                    name={`${obj.id} ${obj.status}`}
+                                                    name={`${obj.name}-${obj.status}`}
                                                     onClick={this.onMarkerClick}
                                                     position={{
                                                         lat: lat,
@@ -281,8 +251,8 @@ import Geocode from "react-geocode";
                                         </Col>
                                         <Col md="1">
                                             <ButtonGroup>
-                                                <Button onClick={this.modalToggle}>Add</Button>
-                                                <Button onClick={this.deleteToggle}>Delete</Button>
+                                                <Button color="primary" onClick={this.modalToggle}>Add</Button>
+                                                <Button color="danger" onClick={this.deleteToggle}>Delete</Button>
                                             </ButtonGroup>
                                         </Col>
                                     </Row>
@@ -325,12 +295,11 @@ import Geocode from "react-geocode";
                                 <FormGroup>
                                     <Label for="exampleEmail">Warehouse Name</Label>
                                     <Input type="select" name="warehouse_delete">
-                                        <option value="alpha">Alpha</option>
-                                        <option value="bravo">Bravo</option>
-                                        <option value="charlie">Charlie</option>
-                                        <option value="delta">Delta</option>
-                                        <option value="epsilon">Epsilon</option>
-                                        <option value="foxtrot">Foxtrot</option>
+                                        {
+                                            this.state.table_data.map((ware) => {
+                                                return(<option value={ware[0]}>{ware[0]}</option>);
+                                            })
+                                        }
                                     </Input>
                                 </FormGroup>
                             </Form>

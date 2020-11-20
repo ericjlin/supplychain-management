@@ -16,8 +16,7 @@ class InfraDashboard extends React.Component {
         super(props);
         this.state = {
             modal: false,
-            isOpen: false,
-            table_header: [],
+            table_header: ["Name", "Orders", "Location", "Status"],
             table_data: [],
             showTooltip: {},
             activeMarker: null,
@@ -39,28 +38,11 @@ class InfraDashboard extends React.Component {
 
     componentDidMount() {
         const role = localStorage.getItem('user');
-
         this.grabCustomer();
         this.grabAllWarehouse();
-        this.setState({
-            table_header : ["Name", "Orders", "Location", "Status"],
-            table_data : [
-                ["Alpha", "20", "Texas", "Operational"],
-                ["Bravo", "5", "Nevada", "Operational"],
-                ["Charlie", "100", "New York", "Sensor Issue"],
-                ["Delta", "0", "San Francisco", "Operational"],
-                ["Epsilon", "19", "Kansas", "Operational"],
-                ["Foxtrot", "4", "Kansas", "No Sensors Detected"]
-            ]
-        });
-        // grab all warehouse in user's home region and load on map
-        // default detailed warehouse is first on the list 
-        // run a condition check on role
-        // Manager and IOT Support will get table of customer
     }
 
     grabAllWarehouse = () => {
-
         let warehouses = []
         customerJson.forEach((customer) => {
             let tmp = customer.warehouses.map((ware) => {
@@ -74,7 +56,6 @@ class InfraDashboard extends React.Component {
             markerData: warehouses
         });
     }
-
 
     // need list of longitude and latitude to define marker locations
     searchWarehouse = (e) => {
@@ -127,12 +108,34 @@ class InfraDashboard extends React.Component {
 
     handleCustomerRowClick = (e, r) => {
         // handle clicking a row
-        console.log(e.target, r);
         // condition check to see if row is for individual warehouse or for everything
         // clicking orders won't do anything
+
+        // setup table
+        let customer_data = [];
+        customerJson.forEach((customer) => {
+            if (customer.name === r[0]) {
+                customer_data = customer.warehouses.map((ware) => {
+                    return [ware.name, ware.orders, ware.state, ware.status];
+                });
+            }
+        });
+
+        //setup customer markers
+        let customer_marker = [];
+        customerJson.forEach((customer) => {
+            if (customer.name === r[0]) {
+                customer_marker = customer.warehouses.map((ware) => {
+                    return ware;
+                });
+            }
+        });
+
         this.setState({
             isCustomerView: !this.state.isCustomerView,
-            selectedCustomer: r[0]
+            selectedCustomer: r[0],
+            table_data: customer_data,
+            markerData: customer_marker
         });
     }
 
@@ -256,6 +259,12 @@ class InfraDashboard extends React.Component {
                                                             </Col>
                                                         </Row>
                                                         <Row className="justify-content-center">
+                                                            {
+                                                                this.state.selectedMarkerInfo.customer ?
+                                                                <Col>
+                                                                    <p>{this.state.selectedMarkerInfo.customer}</p>
+                                                                </Col> : null
+                                                            }
                                                             <Col>
                                                                 <Badge 
                                                                     color={this.state.selectedMarkerInfo.status === "error" ? 
