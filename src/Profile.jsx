@@ -3,11 +3,13 @@ import {
     Col, Form, Table,
     FormGroup, Input,
     Button, Row, Card, CardText, CardBody,
-    CardTitle, CardSubtitle, Container
+    CardTitle, CardSubtitle, Container,
+    Modal, ModalHeader, ModalBody, ModalFooter
   } from 'reactstrap';
   import CustomTable from "./common/CustomTable.jsx";
   import { ResponsiveContainer,LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
   import {withRouter, Link} from 'react-router-dom';
+
 /*
 TODO: Work on modal forms for edit profile, edit billing and view charts
 */
@@ -17,7 +19,9 @@ TODO: Work on modal forms for edit profile, edit billing and view charts
           this.state = {
             chart_data: [],
             role: localStorage.getItem("user") ? 
-            localStorage.getItem("user") : ""
+            localStorage.getItem("user") : "",
+            expenseModal: false,
+            expense_table: []
           }
       }
 
@@ -26,19 +30,41 @@ TODO: Work on modal forms for edit profile, edit billing and view charts
         // test data
         this.setState({
             chart_data : [
-            {name: '15:05', temperature: 68},
-            {name: '15:10', temperature: 69}, 
-            {name: '15:15', temperature: 66}, 
-            {name: '15:20', temperature: 66},
-            {name: '15:25', temperature: 68},
-            {name: '15:30', temperature: 70},
-            {name: '15:35', temperature: 71},
-            {name: '15:40', temperature: 71},
-            {name: '15:45', temperature: 71},
-            {name: '15:50', temperature: 75},
-            {name: '15:55', temperature: 75},
-            {name: '16:00', temperature: 76}
+            {name: '15:05', expense: 68},
+            {name: '15:10', expense: 69}, 
+            {name: '15:15', expense: 66}, 
+            {name: '15:20', expense: 66},
+            {name: '15:25', expense: 68},
+            {name: '15:30', expense: 70},
+            {name: '15:35', expense: 71},
+            {name: '15:40', expense: 71},
+            {name: '15:45', expense: 71},
+            {name: '15:50', expense: 75},
+            {name: '15:55', expense: 75},
+            {name: '16:00', expense: 76}
+        ],
+        expense_table: [
+            ['15:05', "map", 68],
+            ['15:10', "map",69], 
+            ['15:15', "map",66], 
+            ['15:20', "sensor",66],
+            ['15:25', "map", 68],
+            ['15:30', "sensor",70],
+            ['15:35', "sensor", 71],
+            ['15:40', "map",71],
+            ['15:45', "map",71],
+            ['15:50', "map",75],
+            ['15:55', "map",75],
+            ['16:00', "sensor",76]
         ]
+        });
+
+
+    }
+
+    expenseToggle = () => {
+        this.setState({
+            expenseModal: !this.state.expenseModal
         });
     }
       render() {
@@ -105,7 +131,7 @@ TODO: Work on modal forms for edit profile, edit billing and view charts
                                         </tr>
                                     </tbody>
                                 </Table>
-                                <Button>Edit Billing</Button>
+                                {/* <Button>Edit Billing</Button> */}
                             </Row>
                             <Row className="pl-2 pt-4">
                                 <h2>Track Expenses</h2>
@@ -113,16 +139,30 @@ TODO: Work on modal forms for edit profile, edit billing and view charts
                             <Row>
                                 <ResponsiveContainer className="pt-2" width="100%" height={500}>
                                     <LineChart  data={this.state.chart_data}>
-                                        <Line type="monotone" dataKey="temperature" stroke="#8884d8" />
+                                        <Line type="monotone" dataKey="expense" stroke="#8884d8" />
                                         <CartesianGrid stroke="#ccc" />
                                         <XAxis dataKey="name" />
                                         <YAxis domain={[0, 100]}/>
                                     </LineChart>
                                 </ResponsiveContainer>
                             </Row>
-                            <Button>See Details</Button>
+                            <Button onClick={this.expenseToggle}>See Details</Button>
                         </Col>
                     </Row>
+
+                <Modal isOpen={this.state.expenseModal} toggle={this.expenseToggle}>
+                    <ModalHeader toggle={this.addSensorToggle}>Detailed Expense</ModalHeader>
+                    <ModalBody>
+                        <CustomTable 
+                            title="" 
+                            header={["Time", "Category", "Expense"]} 
+                            trows={this.state.expense_table} 
+                            handleRowClick={() => {}}/>
+                    </ModalBody> 
+                    <ModalFooter>
+                        <Button color="secondary" onClick={this.expenseToggle}>Done</Button>
+                    </ModalFooter>       
+                </Modal>
                 </Container>
           );
       }
