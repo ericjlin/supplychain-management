@@ -1,13 +1,11 @@
 import React from 'react';
 import {
-    Collapse, Col, Form, Table,
-    FormGroup, Input, Label, FormText,
-    Button, Row, Card, CardText, CardBody,
-    CardTitle, CardSubtitle,Modal, ModalHeader, ModalBody, ModalFooter,
+    Col, Row, Card, CardBody, CardTitle,
     Container, Pagination, PaginationItem, PaginationLink
   } from 'reactstrap';
 import CustomTable from "../common/CustomTable.jsx";
-import { ResponsiveContainer,LineChart, Line, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
+import { ResponsiveContainer,LineChart, Line, 
+        XAxis, YAxis, CartesianGrid } from 'recharts';
 import { Link } from "react-router-dom";
 import customerJson from '../mock_data/customer.js';
 

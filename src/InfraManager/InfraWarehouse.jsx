@@ -1,13 +1,12 @@
 import React from 'react';
 import {
-    Collapse, Col, Form, Table,
-    FormGroup, Input, Label, FormText,
-    Button, Row, Card, CardText, CardBody,
-    CardTitle, CardSubtitle,Modal, ModalHeader, ModalBody, ModalFooter,
+    Col, Form, FormGroup, Input, Label,
+    Button, Row, Card, CardBody, CardTitle,
+    Modal, ModalHeader, ModalBody, ModalFooter,
     Container, Pagination, PaginationItem, PaginationLink
   } from 'reactstrap';
 import CustomTable from "../common/CustomTable.jsx";
-import { ResponsiveContainer,LineChart, Line, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
+import { ResponsiveContainer,LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { Link } from "react-router-dom";
 import customerJson from '../mock_data/customer.js';
 
@@ -87,6 +86,12 @@ class SupportWarehouse extends React.Component {
         this.setState({
             deleteToggle: !this.state.deleteToggle
         });
+    }
+
+    handleDelete = (e) => {
+        e.preventDefault();
+        // handle delete action
+        this.deleteSensorToggle();
     }
 
     orderTablePagination(index) {
@@ -272,7 +277,7 @@ class SupportWarehouse extends React.Component {
                         <p>Deleting sensor will remove it from the network.</p>
                     </ModalBody> 
                         <ModalFooter>
-                                <Button color="primary" onClick={() => {console.log("deleted!")}} >Continue</Button>{' '}
+                                <Button color="primary" onClick={this.handleDelete} >Continue</Button>{' '}
                                 <Button color="danger" onClick={this.deleteSensorToggle}>Cancel</Button>
                     </ModalFooter> 
                 </Modal>

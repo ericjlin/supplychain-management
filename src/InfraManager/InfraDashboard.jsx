@@ -1,13 +1,12 @@
 import React from 'react';
 import {
-    Collapse, Col, Table, Form, Label,
-    FormGroup, Input, Badge, Container,
-    Button, ButtonGroup, Row,
-    Card, CardText, CardBody, CardTitle, CardSubtitle,
+    Col, Table, Form, Label,
+    FormGroup, Input, Badge, Button,
+    ButtonGroup, Row, Card, CardBody,
     Modal, ModalHeader, ModalBody, ModalFooter
   } from 'reactstrap';
 import CustomTable from "../common/CustomTable.jsx";
-import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react';
+import { Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react';
 import { withRouter } from "react-router-dom";
 import customerJson from '../mock_data/customer';
 
@@ -351,12 +350,11 @@ class InfraDashboard extends React.Component {
                                 <FormGroup>
                                     <Label for="exampleEmail">Warehouse Name</Label>
                                     <Input type="select" name="warehouse_delete">
-                                        <option value="alpha">Alpha</option>
-                                        <option value="bravo">Bravo</option>
-                                        <option value="charlie">Charlie</option>
-                                        <option value="delta">Delta</option>
-                                        <option value="epsilon">Epsilon</option>
-                                        <option value="foxtrot">Foxtrot</option>
+                                        {
+                                            this.state.table_data.map((ware) => {
+                                                return(<option value={ware[0]}>{ware[0]}</option>);
+                                            })
+                                        }
                                     </Input>
                                 </FormGroup>
                             </Form>

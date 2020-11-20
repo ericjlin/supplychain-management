@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-    Collapse, Col, Form, Table,
-    FormGroup, Input, Label, FormText,
-    Button, Row, Card, CardText, CardBody,
-    CardTitle, CardSubtitle,Modal, ModalHeader,
-    ModalBody, ModalFooter, Container,
-    Pagination, PaginationItem, PaginationLink
-  } from 'reactstrap';
+import {Table,Pagination, PaginationItem, PaginationLink} from 'reactstrap';
 import CustomTable from "./common/CustomTable.jsx";
 
 class IndividualSensor extends React.Component {

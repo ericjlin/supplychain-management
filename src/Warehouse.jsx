@@ -1,14 +1,14 @@
 import React from 'react';
 import {
-    Collapse, Col, Form, Table,
-    FormGroup, Input, Label, FormText,
-    Button, Row, Card, CardText, CardBody,
-    CardTitle, CardSubtitle,Modal, ModalHeader, ModalBody, ModalFooter,
+    Col, Form, Table, FormGroup,
+    Input, Label, Button, Row,
+    Card, CardBody, CardTitle,Modal,
+    ModalHeader, ModalBody, ModalFooter,
     Container, Pagination, PaginationItem, PaginationLink
   } from 'reactstrap';
 import CustomTable from "./common/CustomTable.jsx";
-import { ResponsiveContainer,LineChart, Line, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
-import IndividualSensors from './IndividualSensor.jsx';
+import { ResponsiveContainer,LineChart, Line, XAxis, YAxis,
+    CartesianGrid, PieChart, Pie, Cell } from 'recharts';
 import { Link } from "react-router-dom";
 import warehouseJSON from './mock_data/warehouse';
 import customerJson from './mock_data/customer.js';

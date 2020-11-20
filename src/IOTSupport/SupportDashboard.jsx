@@ -1,9 +1,8 @@
 import React from 'react';
 import {
-    Collapse, Col, Table, Form, Label,
-    FormGroup, Input, Badge, Container,
-    Button, Row, Card, CardText, CardBody,
-    CardTitle, CardSubtitle,Modal, ModalHeader, ModalBody, ModalFooter
+    Col, Table, Form,
+    FormGroup, Input, Badge,
+    Button, Row, Card, CardBody,
   } from 'reactstrap';
 import CustomTable from "../common/CustomTable.jsx";
 import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react';

@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-    Col, Form,
-    FormGroup, Label, Input,
-    Button, Row, Table, Card, CardImg, CardText, CardBody,
-    CardTitle, CardSubtitle
-  } from 'reactstrap';
+import { Table } from 'reactstrap';
 
   class CustomTable extends React.Component {
       constructor(props) {

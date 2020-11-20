@@ -1,13 +1,11 @@
 import React from 'react';
 import {
-    Collapse, Col, Table, Form, Label,
+    Col, Table, Form, Label,
     FormGroup, Input, Badge, Container,
-    Button, Row, Card, CardText, CardBody,
-    CardTitle, CardSubtitle,Modal, ModalHeader, ModalBody, ModalFooter,
+    Button, Row, Card, CardBody,
+    Modal, ModalHeader, ModalBody, ModalFooter,
     ButtonGroup, 
   } from 'reactstrap';
-import { useMediaQuery, MediaQuery } from 'react-responsive';
-import CustomTable from "./common/CustomTable.jsx";
 import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react';
 import { withRouter } from "react-router-dom";
 import Geocode from "react-geocode";

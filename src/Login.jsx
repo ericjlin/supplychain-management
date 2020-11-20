@@ -1,9 +1,8 @@
 import React from 'react';
 import {withRouter, Link} from 'react-router-dom'; 
 import {
-    Container, Col, Form,
-    FormGroup, Label, Input,
-    Button, Row
+    Container, Col, Form, FormGroup,
+    Label, Input, Button, Row
   } from 'reactstrap';
   
 
@@ -87,7 +86,7 @@ class Login extends React.Component {
                             />
                             </FormGroup>
                         </Col>
-                        <Button type="submit">Submit</Button>
+                        <Button color="primary" type="submit">Submit</Button>
                         <p className="pt-2">Don't have a account yet?<Link to="/register">Sign up!</Link></p>
                     </Form>
                     </Row>
