@@ -5,7 +5,6 @@ import InfraDashboard from './InfraManager/InfraDashboard.jsx';
 import InfraWarehouse from './InfraManager/InfraWarehouse.jsx';
 import SupportDashboard from './IOTSupport/SupportDashboard.jsx';
 import SupportWarehouse from './IOTSupport/SupportWarehouse.jsx';
-import Sensors from './Sensors.jsx';
 import Profile from './Profile.jsx';
 import Warehouse from './Warehouse.jsx';
 
@@ -37,10 +36,7 @@ export default class LoggedInRoutes extends React.Component {
         return (
             <Layout>
                 <Switch>
-                    {/* <Route path="/manager" component={InfraDashboard} />
-                    <Route path="/support" component={SupportDashboard} /> */}
                     <Route path="/profile" component={Profile} />
-                    <Route path="/sensors" component={Sensors} />
                     <Route path="/warehouse" component={Warehouse} />
                     <Route path="/support_warehouse" component={SupportWarehouse} />
                     <Route path="/manager_warehouse" component={InfraWarehouse} />
